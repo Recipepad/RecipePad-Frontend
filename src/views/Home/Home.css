@@ -1,0 +1,32 @@
+#home-hero{
+    background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url(/slider-bg.jpg);
+    position: relative;
+    background-size: cover;
+    padding: 250px 0;
+    background-position: center;
+  }
+
+#home-hero1{
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(/single-big.jpg);
+  position: relative;
+  background-size: cover;
+  padding: 250px 0;
+  background-position: center;
+}
+
+.start{
+   margin-top:15%;
+}
+
+.intro{
+  font-size: 80px;
+  color:white;
+  padding-left:100px;
+}
+
+hr {
+  max-width: 100px;
+  margin: 25px auto 0;
+  border-width: 1px;
+  border-color: rgba(34,34,34,.1);
+}

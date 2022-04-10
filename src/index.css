@@ -1,0 +1,64 @@
+@import "~react-image-gallery/styles/css/image-gallery.css";
+
+body{
+  font-family: Goudy Old Style !important;
+}
+
+label{
+color:#39886a;
+}
+
+.ant-descriptions-title{
+  color:#39886a !important;
+}
+
+.app {
+  flex-direction: column;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+}
+
+.appLogin {
+  flex-direction: column;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 45vh;
+}
+
+.appRegister {
+  flex-direction: column;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+}
+
+input.error {
+  border-color: red;
+}
+
+.input-feedback {
+  color: red;
+  height: 5px;
+  margin-top: -12px;
+}
+
+table {
+  font-family: Goudy Old Style;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+  color:grey;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}

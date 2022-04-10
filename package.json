@@ -1,0 +1,59 @@
+{
+  "name": "react_template_repo",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@ant-design/icons": "^4.0.6",
+    "antd": "^3.24.1",
+    "axios": "^0.18.0",
+    "eslint-config-react-app": "^5.2.1",
+    "eslint-plugin-flowtype": "^4.7.0",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-react": "^7.19.0",
+    "eslint-plugin-react-hooks": "^3.0.0",
+    "formik": "^1.5.8",
+    "lodash": "^4.17.15",
+    "moment": "^2.24.0",
+    "react": "^16.10.1",
+    "react-dom": "^16.10.1",
+    "react-dropzone": "^10.2.1",
+    "react-facebook-login": "^4.1.1",
+    "react-image-gallery": "^1.0.3",
+    "react-modal": "^3.11.2",
+    "react-paypal-express-checkout": "^1.0.5",
+    "react-redux": "^7.1.0-rc.1",
+    "react-router-dom": "^5.0.1",
+    "react-scripts": "^3.4.0",
+    "redux": "^4.0.0",
+    "redux-promise": "^0.6.0",
+    "redux-thunk": "^2.3.0",
+    "socket.io-client": "^2.2.0",
+    "yup": "^0.27.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "react-router-dom": "^5.1.2"
+  },
+  "proxy": "http://localhost:5000"
+}
