@@ -8,7 +8,13 @@ import NavBar from "./views/NavBar/NavBar"
 import NotFound from "./views/NotFound"
 import Profile from './views/ProfilePage/ProfilePage'
 import Setting from './views/ProfilePage/Setting'
+import FavoritePage from "./views/FavoritePage/FavoritePage"
 import UploadRecipePage from './views/UploadRecipePage/UploadRecipePage'
+import axios from 'axios';
+
+axios.defaults.baseURL = 'http://localhost:5000';
+axios.defaults.headers.common['Content-Type'] = 'application/json; charset=utf-8';
+axios.defaults.headers.common['Cache-Control'] = 'no-cache';
 
 const App = () => {
   return (
@@ -25,6 +31,7 @@ const App = () => {
               <Route exact path="/register" component={RegisterPage} />
               <Route exact path="/profile" component={Profile} />
               <Route exact path="/settings" component={Setting} />
+              <Route exact path="/favorite" component={FavoritePage} />
               <Route exact path="/recipe/upload" component={UploadRecipePage} />
               <Route component={NotFound}/>
           </Switch>

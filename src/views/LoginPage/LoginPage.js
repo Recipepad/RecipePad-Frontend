@@ -5,26 +5,23 @@ import * as Yup from 'yup';
 import { Form, Input, Button, Typography } from 'antd';
 import UserOutlined from '@ant-design/icons/UserOutlined';
 import LockOutlined from '@ant-design/icons/LockOutlined';
+import { loginUser } from '../../actions/user_actions';
+import { useDispatch } from 'react-redux';
 
 const { Title } = Typography;
 
 function LoginPage(props) {
-    const [formErrorMessage] = useState('');
-    const initialEmail = localStorage.getItem('rememberMe')
-    ? localStorage.getItem('rememberMe')
-    : '';
+  const dispatch = useDispatch();
+  const [formErrorMessage, setFormErrorMessage] = useState('');
 
   return (
     <div>
       <Formik
         initialValues={{
-          email: initialEmail,
+          username: '',
           password: '',
         }}
         validationSchema={Yup.object().shape({
-          email: Yup.string()
-            .email('Email is invalid')
-            .required('Email is required'),
           password: Yup.string()
             .min(6, 'Password must be at least 6 characters')
             .required('Password is required'),
@@ -32,10 +29,31 @@ function LoginPage(props) {
         onSubmit={(values, { setSubmitting }) => {
           setTimeout(() => {
             let dataToSubmit = {
-              email: values.email,
+              username: values.username,
               password: values.password,
             };
             console.log(dataToSubmit);
+            dispatch(loginUser(dataToSubmit))
+              .then((response) => {
+                if (response.payload.loginSuccess) {
+                  window.localStorage.setItem(
+                    'userId',
+                    response.payload.uid
+                  );
+                  props.history.push('/');
+                } else {
+                  setFormErrorMessage(
+                    'Check out your Account or Password again'
+                  );
+                }
+              })
+              .catch((err) => {
+                setFormErrorMessage('Check out your Account or Password again');
+                setTimeout(() => {
+                  setFormErrorMessage('');
+                }, 3000);
+              });
+            setSubmitting(false);
           }, 500);
         }}
       >
@@ -55,22 +73,22 @@ function LoginPage(props) {
               <form onSubmit={handleSubmit} style={{ width: '350px' }}>
                 <Form.Item required>
                   <Input
-                    id='email'
+                    id='username'
                     prefix={
                       <UserOutlined type='user' style={{ color: 'rgba(0,0,0,.25)' }} />
                     }
-                    placeholder='Enter your email'
-                    type='email'
+                    placeholder='Enter your username'
+                    type='username'
                     onChange={handleChange}
                     onBlur={handleBlur}
                     className={
-                      errors.email && touched.email
+                      errors.username && touched.username
                         ? 'text-input error'
                         : 'text-input'
                     }
                   />
-                  {errors.email && touched.email && (
-                    <div className='input-feedback'>{errors.email}</div>
+                  {errors.username && touched.username && (
+                    <div className='input-feedback'>{errors.username}</div>
                   )}
                 </Form.Item>
 

@@ -2,6 +2,8 @@ import React from "react";
 import moment from "moment";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import registerUser from '../../actions/user_actions';
+import { useDispatch } from "react-redux";
 import {
   Form,
   Input,
@@ -34,6 +36,7 @@ const tailFormItemLayout = {
 };
 
 function RegisterPage(props) {
+  const dispatch = useDispatch();
   return (
     <div>
       <Formik
@@ -61,10 +64,19 @@ function RegisterPage(props) {
             let dataToSubmit = {
               email: values.email,
               password: values.password,
-              fullname: values.fullname,
-              image: `http://gravatar.com/avatar/${moment().unix()}?d=identicon`
+              username: values.fullname,
+              image: ``
             };
-            console.log(dataToSubmit);
+
+            dispatch(registerUser(dataToSubmit)).then(response => {
+              if (response.payload.uid) {
+                props.history.push("/login");
+              } else {
+                alert ('Register Not Successful')
+                // alert(response.payload.err)
+                // console.log(response.payload)
+              }
+            })
             setSubmitting(false);
           }, 500);
         }}
