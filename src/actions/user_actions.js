@@ -4,9 +4,14 @@ import {
     REGISTER_USER
 } from './types';
 
-export function registerUser(dataToSubmit) {
+axios.defaults.baseURL = 'http://localhost:5000';
+axios.defaults.headers.common['Content-Type'] = 'application/json; charset=utf-8';
+axios.defaults.headers.common['Cache-Control'] = 'no-cache';
+
+export default function registerUser(dataToSubmit) {
+    console.log(dataToSubmit);
     const request = axios.post(`/register`, dataToSubmit)
-        .then(response => response.data);
+        .then(response => console.log(response.data));
     return {
         type: REGISTER_USER,
         payload: request

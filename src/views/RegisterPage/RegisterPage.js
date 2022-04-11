@@ -8,6 +8,7 @@ import {
   Button,
   Typography
 } from 'antd';
+import registerUser from '../../actions/user_actions';
 
 const { Title } = Typography;
 const formItemLayout = {
@@ -61,10 +62,10 @@ function RegisterPage(props) {
             let dataToSubmit = {
               email: values.email,
               password: values.password,
-              fullname: values.fullname,
+              username: values.fullname,
               image: `http://gravatar.com/avatar/${moment().unix()}?d=identicon`
             };
-            console.log(dataToSubmit);
+            registerUser(dataToSubmit)
             setSubmitting(false);
           }, 500);
         }}
