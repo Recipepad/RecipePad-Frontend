@@ -149,7 +149,7 @@ function ProfilePage() {
                   onClick={() => {
                     if (
                       window.confirm(
-                        'Are you sure you wish to delete this post?'
+                        'Are you sure you want to delete this post?'
                       )
                     )
                       removeItem(p.id);
