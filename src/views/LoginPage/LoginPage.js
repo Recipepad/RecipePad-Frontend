@@ -18,10 +18,12 @@ function LoginPage(props) {
     <div>
       <Formik
         initialValues={{
-          username: '',
+          fullname: '',
           password: '',
         }}
         validationSchema={Yup.object().shape({
+          fullname: Yup.string()
+            .required('Name is required'),
           password: Yup.string()
             .min(6, 'Password must be at least 6 characters')
             .required('Password is required'),
@@ -29,18 +31,19 @@ function LoginPage(props) {
         onSubmit={(values, { setSubmitting }) => {
           setTimeout(() => {
             let dataToSubmit = {
-              username: values.username,
+              username: values.fullname,
               password: values.password,
             };
-            console.log(dataToSubmit);
+            // console.log(dataToSubmit);
             dispatch(loginUser(dataToSubmit))
               .then((response) => {
-                if (response.payload.loginSuccess) {
+                console.log(response)
+                if (response.payload.uid) {
                   window.localStorage.setItem(
                     'userId',
                     response.payload.uid
                   );
-                  props.history.push('/');
+                  props.history.push('/recipe');
                 } else {
                   setFormErrorMessage(
                     'Check out your Account or Password again'
@@ -73,22 +76,22 @@ function LoginPage(props) {
               <form onSubmit={handleSubmit} style={{ width: '350px' }}>
                 <Form.Item required>
                   <Input
-                    id='username'
+                    id='fullname'
                     prefix={
                       <UserOutlined type='user' style={{ color: 'rgba(0,0,0,.25)' }} />
                     }
-                    placeholder='Enter your username'
-                    type='username'
+                    placeholder='Enter your fullname'
+                    type='fullname'
                     onChange={handleChange}
                     onBlur={handleBlur}
                     className={
-                      errors.username && touched.username
+                      errors.fullname && touched.fullname
                         ? 'text-input error'
                         : 'text-input'
                     }
                   />
-                  {errors.username && touched.username && (
-                    <div className='input-feedback'>{errors.username}</div>
+                  {errors.fullname && touched.fullname && (
+                    <div className='input-feedback'>{errors.fullname}</div>
                   )}
                 </Form.Item>
 
