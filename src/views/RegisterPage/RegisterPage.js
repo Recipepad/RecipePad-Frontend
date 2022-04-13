@@ -1,5 +1,4 @@
 import React from "react";
-import moment from "moment";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import registerUser from '../../actions/user_actions';
@@ -41,7 +40,6 @@ function RegisterPage(props) {
     <div>
       <Formik
         initialValues={{
-          email: '',
           fullname: '',
           password: '',
           confirmPassword: ''
@@ -49,9 +47,6 @@ function RegisterPage(props) {
         validationSchema={Yup.object().shape({
           fullname: Yup.string()
             .required('Name is required'),
-          email: Yup.string()
-            .email('Email is invalid')
-            .required('Email is required'),
           password: Yup.string()
             .min(6, 'Password must be at least 6 characters')
             .required('Password is required'),
@@ -62,10 +57,8 @@ function RegisterPage(props) {
         onSubmit={(values, { setSubmitting }) => {
           setTimeout(() => {
             let dataToSubmit = {
-              email: values.email,
-              password: values.password,
               username: values.fullname,
-              image: ``
+              password: values.password
             };
 
             dispatch(registerUser(dataToSubmit)).then(response => {
@@ -107,22 +100,8 @@ function RegisterPage(props) {
                       errors.fullname && touched.fullname ? 'text-input error' : 'text-input'
                     }
                   />
-                </Form.Item>
-
-                <Form.Item required label="Email" hasFeedback validateStatus={errors.email && touched.email ? "error" : 'success'}>
-                  <Input
-                    id="email"
-                    placeholder="Enter your Email"
-                    type="email"
-                    value={values.email}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    className={
-                      errors.email && touched.email ? 'text-input error' : 'text-input'
-                    }
-                  />
-                  {errors.email && touched.email && (
-                    <div className="input-feedback">{errors.email}</div>
+                  {errors.fullname && touched.fullname && (
+                    <div className='input-feedback'>{errors.fullname}</div>
                   )}
                 </Form.Item>
 
