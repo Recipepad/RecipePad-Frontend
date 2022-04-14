@@ -28,6 +28,10 @@ jobs:
           npm install
           npm run build --if-present
           npm run test --if-present
+      
+      # Zip artifacts to speed things up
+      - name: Zip artifact for deployment
+        run: zip release.zip ./* -qr
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
@@ -55,4 +59,4 @@ jobs:
           app-name: 'recipepadv2'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_BEA1B311D87849FBBF138F64418102C5 }}
-          package: .
+          package: release.zip
