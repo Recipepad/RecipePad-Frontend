@@ -37,7 +37,7 @@ export function auth() {
 }
 
 export function logoutUser() {
-    const request = axios.get(`${'/api/users'}/logout`)
+    const request = axios.get(`/logout`)
         .then(response => response.data);
     return {
         type: LOGOUT_USER,
@@ -46,7 +46,8 @@ export function logoutUser() {
 }
 
 export function fetchProfile() {
-    const request = axios.get(`${'/api/users'}/profile`)
+    console.log(`/profile/${window.localStorage.userId}`)
+    const request = axios.get(`/profile/${window.localStorage.userId}`)
         .then(response => response.data);
     return {
         type: FETCH_PROFILE,
@@ -55,7 +56,7 @@ export function fetchProfile() {
 }
 
 export function updateProfile(dataToSubmit) {
-    const request = axios.put(`${'/api/users'}/profile`, dataToSubmit)
+    const request = axios.post(`/profile`, dataToSubmit)
     .then(response => response.data);
     return {
     type: UPDATE_PROFILE,
