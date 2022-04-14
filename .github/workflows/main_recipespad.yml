@@ -21,10 +21,12 @@ jobs:
         with:
           node-version: '12.13.0'
 
-      - name: npm install, build, and test
+      - name: npm install, build
+        env:
+           CI: false
         run: |
-          CI='' npm install
-          CI='' npm run build --if-present
+          npm install
+          npm run build --if-present
       
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
