@@ -10,8 +10,6 @@ import DeleteOutlined from '@ant-design/icons/DeleteOutlined';
 import { useDispatch } from 'react-redux';
 import { fetchProfile, updateProfile } from '../../actions/user_actions';
 
-const { TextArea } = Input;
-
 function ProfilePage() {
   const dispatch = useDispatch();
   const [emailValue, setemailValue] = useState('');
@@ -21,7 +19,7 @@ function ProfilePage() {
   const [image, setimageValue] = useState('');
 
   useEffect(() => {
-    Axios.get('getPost').then((response) => {
+    Axios.get(`/recipe/${window.localStorage.uid}`).then((response) => {
       if (response.data.success) {
         setPosts(response.data.post);
       } else {
@@ -66,7 +64,7 @@ function ProfilePage() {
   };
 
   const removeItem = (rid) => {
-    Axios.delete(`/recipe/<int:rid=${rid}>`).then(
+    Axios.delete(`/recipe/${rid}`).then(
       (response) => {
         if (response.data.success) {
           alert(response.data.message);
