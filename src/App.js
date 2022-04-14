@@ -8,11 +8,13 @@ import NavBar from "./views/NavBar/NavBar"
 import NotFound from "./views/NotFound"
 import Profile from './views/ProfilePage/ProfilePage'
 import Setting from './views/ProfilePage/Setting'
-import FavoritePage from "./views/FavoritePage/FavoritePage"
+import BookmarkPage from "./views/FavoritePage/FavoritePage"
+import Auth from "./auth"
+import LandingPage from "./views/LandingPage/LandingPage"
 import UploadRecipePage from './views/UploadRecipePage/UploadRecipePage'
 import axios from 'axios';
 
-axios.defaults.baseURL = 'http://localhost:5000';
+axios.defaults.baseURL = 'https://recipepad.azurewebsites.net/';
 axios.defaults.headers.common['Content-Type'] = 'application/json; charset=utf-8';
 axios.defaults.headers.common['Cache-Control'] = 'no-cache';
 
@@ -23,16 +25,17 @@ const App = () => {
       <BrowserRouter>
         <div style={{ paddingTop: '75px', minHeight: 'calc(100vh - 80px)' }}>
           <Switch>
-              <Route exact path="/Home" component={Home} />
+              <Route exact path="/Home" component={Auth(Home, null)} />
               <Route exact path="/">
                 <Redirect to="/Home" />
               </Route>
-              <Route exact path="/login" component={LoginPage} />
-              <Route exact path="/register" component={RegisterPage} />
-              <Route exact path="/profile" component={Profile} />
-              <Route exact path="/settings" component={Setting} />
-              <Route exact path="/favorite" component={FavoritePage} />
-              <Route exact path="/recipe/upload" component={UploadRecipePage} />
+              <Route exact path="/login" component={Auth(LoginPage, false)} />
+              <Route exact path="/register" component={Auth(RegisterPage, false)} />
+              <Route exact path="/recipe" component={Auth(LandingPage, false)} />
+              <Route exact path="/profile" component={Auth(Profile, true)} />
+              <Route exact path="/settings" component={Auth(Setting, true)} />
+              <Route exact path="/bookmark" component={Auth(BookmarkPage, null)} />
+              <Route exact path="/recipe/upload" component={Auth(UploadRecipePage, true)} />
               <Route component={NotFound}/>
           </Switch>
         </div>
