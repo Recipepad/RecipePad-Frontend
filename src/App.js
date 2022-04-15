@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { BrowserRouter, Route, Switch, Redirect  } from 'react-router-dom';
+import { Route, Switch, Redirect  } from 'react-router-dom';
 import Home from "./views/Home/Home"
 import LoginPage from "./views/LoginPage/LoginPage"
 import RegisterPage from "./views/RegisterPage/RegisterPage"
@@ -15,6 +15,8 @@ import UploadRecipePage from './views/UploadRecipePage/UploadRecipePage'
 import axios from 'axios';
 
 axios.defaults.baseURL = 'https://recipepad.azurewebsites.net/';
+
+//axios.defaults.baseURL = 'http://localhost:5000';
 axios.defaults.headers.common['Content-Type'] = 'application/json; charset=utf-8';
 axios.defaults.headers.common['Cache-Control'] = 'no-cache';
 
@@ -22,7 +24,6 @@ const App = () => {
   return (
     <Suspense fallback={(<div>Loading...</div>)}>
       <NavBar />
-      <BrowserRouter>
         <div style={{ paddingTop: '75px', minHeight: 'calc(100vh - 80px)' }}>
           <Switch>
               <Route exact path="/Home" component={Auth(Home, null)} />
@@ -40,7 +41,6 @@ const App = () => {
           </Switch>
         </div>
         <Footer />
-      </BrowserRouter>
     </Suspense>
   );
 }
