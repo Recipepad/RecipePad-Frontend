@@ -21,18 +21,23 @@ jobs:
         with:
           node-version: '12.13.0'
 
-      - name: npm install, build
+      - name: npm install, build, and test
         env:
            CI: false
         run: |
           npm install
           npm run build --if-present
+          npm run test --if-present
       
+      # Zip artifacts to speed things up
+      - name: Zip artifact for deployment
+        run: zip release.zip ./* -qr
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
         with:
           name: node-app
-          path: .
+          path: release.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -48,10 +53,10 @@ jobs:
           name: node-app
 
       - name: 'Deploy to Azure Web App'
-        uses: azure/webapps-deploy@v2
         id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
         with:
-          app-name: 'RecipesPad'
+          app-name: 'recipepadv2'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_04869178453449F0B1E5B5C8EE30EBD3 }}
-          package: .
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_BEA1B311D87849FBBF138F64418102C5 }}
+          package: release.zip
