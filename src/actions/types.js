@@ -4,3 +4,6 @@ export const AUTH_USER = 'auth_user';
 export const LOGOUT_USER = 'logout_user';
 export const FETCH_PROFILE = 'fetch_profile';
 export const UPDATE_PROFILE = 'update_profile';
+export const ADD_TO_BOOKMARK_USER = 'add_to_bookmark_user';
+export const GET_BOOKMARK_ITEMS_USER = 'get_bookmarkK_items_user';
+export const REMOVE_BOOKMARK_ITEM_USER = 'remove_bookmark_item_user';
