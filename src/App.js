@@ -12,6 +12,7 @@ import BookmarkPage from "./views/FavoritePage/FavoritePage"
 import Auth from "./auth"
 import LandingPage from "./views/LandingPage/LandingPage"
 import UploadRecipePage from './views/UploadRecipePage/UploadRecipePage'
+import DetailRecipePage from './views/DetailRecipePage/DetailRecipePage'
 import axios from 'axios';
 
 axios.defaults.baseURL = 'https://recipepad.azurewebsites.net/';
@@ -37,6 +38,7 @@ const App = () => {
               <Route exact path="/settings" component={Auth(Setting, true)} />
               <Route exact path="/bookmark" component={Auth(BookmarkPage, null)} />
               <Route exact path="/recipe/upload" component={Auth(UploadRecipePage, true)} />
+              <Route exact path="/recipe/:recipeId" component={Auth(DetailRecipePage, null)} />
               <Route component={NotFound}/>
           </Switch>
         </div>
