@@ -9,7 +9,7 @@ function RightMenu(props) {
 
   const logoutHandler = () => {
     axios.get(`/logout`).then(response => {
-      if (response.status == 200) {
+      if (response.status === 200) {
         localStorage.clear();
         props.history.push('/login');
       } else {
@@ -18,7 +18,7 @@ function RightMenu(props) {
     });
   };
 
-  // console.log(user)
+  console.log(user)
   // console.log(user.userData)
   // console.log(window.localStorage.userId)
   if (!window.localStorage.userId) {
