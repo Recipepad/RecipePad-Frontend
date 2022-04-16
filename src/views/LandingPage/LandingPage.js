@@ -10,9 +10,9 @@ const { Meta } = Card;
 function LandingPage() {
   const [Recipes, setRecipes] = useState([]);
   const [Skip, setSkip] = useState(0);
-  const [Limit, setLimit] = useState(8);
+  const Limit = useState(8);
   const [PostSize, setPostSize] = useState();
-  const [SearchTerms, setSearchTerms] = useState('');
+  const setSearchTerms = useState('');
 
   useEffect(() => {
     const variables = {
@@ -20,7 +20,7 @@ function LandingPage() {
       limit: Limit,
     };
     getRecipes(variables);
-  }, []);
+  });
 
   const getRecipes = (variables) => {
     // console.log(variables)
