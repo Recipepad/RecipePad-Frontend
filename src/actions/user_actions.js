@@ -49,7 +49,7 @@ export function logoutUser() {
 }
 
 export function fetchProfile() {
-    console.log(`/profile/${window.localStorage.userId}`)
+    // console.log(`/profile/${window.localStorage.userId}`)
     const request = axios.get(`/profile/${window.localStorage.userId}`)
         .then(response => response.data);
     return {

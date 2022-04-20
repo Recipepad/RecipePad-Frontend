@@ -5,7 +5,7 @@ import { withRouter } from 'react-router-dom';
 import { useSelector } from "react-redux";
 
 function RightMenu(props) {
-  const user = useSelector(state => state.user)
+  // const user = useSelector(state => state.user)
 
   const logoutHandler = () => {
     axios.get(`/logout`).then(response => {
@@ -18,7 +18,7 @@ function RightMenu(props) {
     });
   };
 
-  console.log(user)
+  // console.log(user)
   // console.log(user.userData)
   // console.log(window.localStorage.userId)
   if (!window.localStorage.userId) {
