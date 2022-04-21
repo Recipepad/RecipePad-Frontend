@@ -35,7 +35,7 @@ function ProfilePage() {
       setnicknameValue(response.payload.nickname);
       setimageValue(response.payload.image);
     });
-  });
+  }, []);
 
   const onemailChange = (event) => {
     setemailValue(event.currentTarget.value);
