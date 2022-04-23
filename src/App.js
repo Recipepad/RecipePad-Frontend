@@ -18,7 +18,7 @@ import axios from 'axios';
 
 axios.defaults.baseURL = 'https://recipepad.azurewebsites.net/';
 
-//axios.defaults.baseURL = 'http://localhost:5000';
+// axios.defaults.baseURL = 'http://localhost:5000';
 axios.defaults.withCredentials = true
 axios.defaults.headers.common['Content-Type'] = 'application/json; charset=utf-8';
 axios.defaults.headers.common['Cache-Control'] = 'no-cache';
@@ -33,14 +33,14 @@ const App = () => {
               <Route exact path="/">
                 <Redirect to="/Home" />
               </Route>
-              <Route exact path="/login" component={Auth(LoginPage, false)} />
-              <Route exact path="/register" component={Auth(RegisterPage, false)} />
-              <Route exact path="/recipe" component={Auth(LandingPage, false)} />
+              <Route exact path="/login" component={Auth(LoginPage, true)} />
+              <Route exact path="/register" component={Auth(RegisterPage, true)} />
+              <Route exact path="/recipe" component={Auth(LandingPage, true)} />
               <Route exact path="/profile" component={Auth(Profile, true)} />
               <Route exact path="/settings" component={Auth(Setting, true)} />
-              <Route exact path="/bookmark" component={Auth(BookmarkPage, null)} />
+              <Route exact path="/bookmark" component={Auth(BookmarkPage, true)} />
               <Route exact path="/recipe/upload" component={Auth(UploadRecipePage, true)} />
-              <Route exact path="/recipe/:recipeId" component={Auth(DetailRecipePage, null)} />
+              <Route exact path="/recipe/:recipeId" component={Auth(DetailRecipePage, true)} />
               <Route exact path="/recipe/edit/:recipeId" component={Auth(EditRecipePage, true)} />
               <Route component={NotFound}/>
           </Switch>

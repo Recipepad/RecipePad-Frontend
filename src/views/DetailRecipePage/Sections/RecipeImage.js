@@ -20,7 +20,7 @@ function RecipeImage(props) {
 
     return (
         <div>
-            <ImageGallery items={Images} />
+            {/* <ImageGallery items={Images} /> */}
         </div>
     )
 }
