@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Popover, Button, Descriptions } from 'antd';
+import Axios from 'axios'
+import { Popover, Button, Descriptions, Image, Layout, Divider, Row, Col, List, Typography  } from 'antd';
 import MailOutlined from '@ant-design/icons/MailOutlined';
 import HomeOutlined from '@ant-design/icons/HomeOutlined';
 import LaptopOutlined from '@ant-design/icons/LaptopOutlined';
@@ -8,13 +9,20 @@ import UserOutlined from '@ant-design/icons/UserOutlined';
 
 import { useSelector } from 'react-redux';
 
+const BASE_IMAGE_URL = "https://recipepadblob.blob.core.windows.net/images/"
+
+
 function RecipeInfo(props) {
   const user = useSelector((state) => state.user);
-  const [Recipe, setRecipe] = useState({});
+  const ingredients = [];
+
+  for (var i in props.Recipe.ingredients) {
+    ingredients.push([i, props.Recipe.ingredients[i]]);
+  }
 
   useEffect(() => {
-    setRecipe(props.detail);
-  }, [props.detail]);
+    console.log(props.recipe)
+  }, []);
 
   const addToBookmarkhandler = () => {
     if (user.userData && !user.userData.isAuth) {
@@ -45,66 +53,87 @@ function RecipeInfo(props) {
         <strong>Username:</strong>
       </label>
       <p>
-        <HomeOutlined /> {Recipe.username}
+        <HomeOutlined /> {props.Recipe.username}
       </p>
       <label>
         <strong>Email:</strong>
       </label>
       <p>
-        <MailOutlined /> {Recipe.useremail}
+        <MailOutlined /> {props.Recipe.useremail}
       </p>
       <label>
         <strong>Nickname:</strong>
       </label>
       <p>
-        <LaptopOutlined /> {Recipe.usernickname}
+        <LaptopOutlined /> {props.Recipe.usernickname}
       </p>
     </div>
   );
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <Button
-          size='large'
-          shape='round'
-          type='danger'
-          onClick={addToBookmarkhandler}
-        >
-          <HeartOutlined />
-        </Button>
-      </div>
-      <Descriptions title='Recipe Information:'>
-        <Descriptions.Item label='Title'> {Recipe.title}</Descriptions.Item>
-        <Descriptions.Item label='Ingredients'>
-          {' '}
-          {Recipe.ingredients}
-        </Descriptions.Item>
-        <Descriptions.Item label='Category'>
-          {' '}
-          {rendercategory(Recipe.tags)}
-        </Descriptions.Item>
-      </Descriptions>
-      <br />
-      <div>
-        <label style={{ fontSize: 16 }}>
-          <strong>Steps and Details:</strong>
-        </label>
-        <p>{Recipe.steps}</p>
-      </div>
-      <div>
-        <label style={{ fontSize: 16 }}>
-          <strong>Author:</strong>
-        </label>
-        <p>
-          <UserOutlined /> {Recipe.username} &nbsp;&nbsp;&nbsp;&nbsp;{' '}
-          &nbsp;&nbsp;&nbsp;&nbsp;{' '}
-          <Popover content={content} title='Author profile' trigger='click'>
-            <a>View Profile</a>
-          </Popover>
-        </p>
-      </div>
-    </div>
+  <div>
+    <Row>
+      <Col span={8}></Col>
+      <Col span={8}>
+        <img
+          width={400}
+          src={BASE_IMAGE_URL + props.Recipe.cover_imgid}
+        />
+      </Col>
+      <Col span={8}></Col>
+    </Row>
+    <Row>
+    <Col span={8}></Col>
+    <Col span={8}>
+      <h1> {props.Recipe.title}
+      </h1>
+    </Col>
+    <Col span={8}></Col>
+  </Row>
+  <Row>
+    <Col span={4}></Col>
+    <Col span={16}>
+      <List
+        header="Ingredients"
+        bordered
+        dataSource={ingredients}
+        renderItem={item => (
+          <List.Item>
+            {item[0] + " " + item[1]}
+          </List.Item>
+        )}
+      />
+    </Col>
+    <Col span={4}></Col>
+  </Row>
+  <Row>
+    <Col span={4}></Col>
+    <Col span={16}>
+      <List
+        size="large"
+        header="Steps"
+        bordered
+        dataSource={props.Recipe.steps}
+        renderItem={item => (
+          <List.Item>
+            <h1>
+            {item.title}
+            </h1>
+            <br></br>
+            <img
+              width={272}
+              src={BASE_IMAGE_URL + item.image_id}
+            />
+            <br></br>
+          {item.detail}
+          </List.Item>
+        )}
+      />
+    </Col>
+    <Col span={4}></Col>
+  </Row>
+
+  </div>
   );
 }
 export default RecipeInfo;
