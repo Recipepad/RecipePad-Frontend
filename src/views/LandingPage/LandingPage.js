@@ -6,36 +6,45 @@ import ImageSlider from '../../components/ImageSlider';
 import SearchFeature from './Sections/SearchFeature';
 
 const { Meta } = Card;
+const BASE_IMAGE_URL = "https://recipepadblob.blob.core.windows.net/images/"
 
 function LandingPage() {
   const [Recipes, setRecipes] = useState([]);
   const [Skip, setSkip] = useState(0);
   const Limit = useState(8);
   const [PostSize, setPostSize] = useState();
-  const setSearchTerms = useState('');
+  const [SearchTerms, setSearchTerms] = useState('');
+  const defaultSearchTerm = "food";
 
   useEffect(() => {
-    const variables = {
-      skip: Skip,
-      limit: Limit,
-    };
-    getRecipes(variables);
-  });
+    getRecipesBySearchTerm(defaultSearchTerm);
+  }, []);
+
+  const getRecipesBySearchTerm = (searchTerm) => {
+    Axios.get(`/search/${searchTerm}`).then((response) => {
+      var rids_str = response.data.rids.join(";");
+      console.log(response.data)
+      Axios.get(`/recipes/${rids_str}`).then((response) => {
+        const variables = {
+          limit: Limit,
+          loadMore: true,
+        };
+          if (response.data.success) {
+            if (variables.loadMore) {
+              setRecipes([...Recipes, ...response.data.recipes]);
+            } else {
+              setRecipes(response.data.recipes);
+            }
+            setPostSize(variables.limit);
+          } else {
+            alert('Failed to fectch recipes data');
+          }
+      });
+    });
+  };
 
   const getRecipes = (variables) => {
-    // console.log(variables)
-    Axios.post('/getRecipes', variables).then((response) => {
-      if (response.data.success) {
-        if (variables.loadMore) {
-          setRecipes([...Recipes, ...response.data.recipes]);
-        } else {
-          setRecipes(response.data.recipes);
-        }
-        setPostSize(response.data.postSize);
-      } else {
-        alert('Failed to fectch recipes data');
-      }
-    });
+    getRecipesBySearchTerm(variables.searchTerm)
   };
 
   const onLoadMore = () => {
@@ -57,7 +66,11 @@ function LandingPage() {
           cover={
             <a href={`/recipe/${recipe.rid}`}>
               {' '}
-              <ImageSlider images={recipe.images} />
+              <img
+                width={200}
+                src={BASE_IMAGE_URL + recipe.cover_imgid}
+              />
+              {/* <ImageSlider images={recipe.images} /> */}
             </a>
           }
         >
