@@ -4,12 +4,13 @@ import { Col, Card, Row, Button } from 'antd';
 import RocketOutlined from '@ant-design/icons/RocketOutlined';
 import ImageSlider from '../../components/ImageSlider';
 import SearchFeature from './Sections/SearchFeature';
+import { render } from 'react-dom';
 
 const { Meta } = Card;
 const BASE_IMAGE_URL = "https://recipepadblob.blob.core.windows.net/images/"
 
 function LandingPage() {
-  const [Recipes, setRecipes] = useState([]);
+  const [Recipes, updateRecipes] = useState([]);
   const [Skip, setSkip] = useState(0);
   const Limit = useState(8);
   const [PostSize, setPostSize] = useState();
@@ -17,25 +18,26 @@ function LandingPage() {
   const defaultSearchTerm = "food";
 
   useEffect(() => {
-    getRecipesBySearchTerm(defaultSearchTerm);
+    var controlVariables = {
+      limit: Limit,
+      loadMore: false,
+    };
+    getRecipesBySearchTerm(defaultSearchTerm, controlVariables);
   }, []);
 
-  const getRecipesBySearchTerm = (searchTerm) => {
+  const getRecipesBySearchTerm = (searchTerm, controlVariables) => {
+    console.log(Recipes);
     Axios.get(`/search/${searchTerm}`).then((response) => {
       var rids_str = response.data.rids.join(";");
       console.log(response.data)
       Axios.get(`/recipes/${rids_str}`).then((response) => {
-        const variables = {
-          limit: Limit,
-          loadMore: true,
-        };
           if (response.data.success) {
-            if (variables.loadMore) {
-              setRecipes([...Recipes, ...response.data.recipes]);
+            if (controlVariables.loadMore) {
+              updateRecipes([...Recipes, ...response.data.recipes]);
             } else {
-              setRecipes(response.data.recipes);
+              updateRecipes(response.data.recipes);
             }
-            setPostSize(variables.limit);
+            setPostSize(controlVariables.limit);
           } else {
             alert('Failed to fectch recipes data');
           }
@@ -44,7 +46,7 @@ function LandingPage() {
   };
 
   const getRecipes = (variables) => {
-    getRecipesBySearchTerm(variables.searchTerm)
+    getRecipesBySearchTerm(variables.searchTerm, variables)
   };
 
   const onLoadMore = () => {
@@ -80,6 +82,11 @@ function LandingPage() {
     );
   });
 
+  function useForceUpdate(){
+    const [value, setValue] = useState(0); // integer state
+    return () => setValue(value => value + 1); // update the state to force render
+  }
+
   const updateSearchTerms = (newSearchTerm) => {
     const variables = {
       skip: 0,
@@ -91,46 +98,36 @@ function LandingPage() {
     getRecipes(variables);
   };
 
-  return (
-    <div style={{ width: '75%', margin: '3rem auto' }}>
-      <div style={{ textAlign: 'center' }}>
-        <h2>
-          {' '}
-          Let's Search Recipes <RocketOutlined type='rocket' />{' '}
-        </h2>
-      </div>
-
-      <div>
-        <SearchFeature refreshFunction={updateSearchTerms} />
-      </div>
-      {Recipes.length === 0 ? (
-        <div
-          style={{
-            display: 'flex',
-            height: '300px',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <h2>No post yet...</h2>
+    return (
+      <div style={{ width: '75%', margin: '3rem auto' }}>
+        <div style={{ textAlign: 'center' }}>
+          <h2>
+            {' '}
+            Let's Search Recipes <RocketOutlined type='rocket' />{' '}
+          </h2>
         </div>
-      ) : (
+
+        <div>
+          <SearchFeature refreshFunction={updateSearchTerms} />
+        </div>
+
+        <br />
+
         <div>
           <Row gutter={[16, 16]}>{renderCards}</Row>
         </div>
-      )}
-      <br />
-      <br />
+        <br />
+        <br />
 
-      {PostSize >= Limit && (
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <Button type='dashed' size='large' onClick={onLoadMore}>
-            Load More
-          </Button>
-        </div>
-      )}
-    </div>
-  );
+        {PostSize >= Limit && (
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <Button type='dashed' size='large' onClick={onLoadMore}>
+              Load More
+            </Button>
+          </div>
+        )}
+      </div>
+      );
 }
 
 export default LandingPage;
