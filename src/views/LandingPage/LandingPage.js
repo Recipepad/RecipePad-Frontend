@@ -28,9 +28,13 @@ function LandingPage() {
   const getRecipesBySearchTerm = (searchTerm, controlVariables) => {
     console.log(Recipes);
     Axios.get(`/search/${searchTerm}`).then((response) => {
-      var rids_str = response.data.rids.join(";");
       console.log(response.data)
-      Axios.get(`/recipes/${rids_str}`).then((response) => {
+      var rids_str = response.data.rids.join(";");
+      if (rids_str === "") {
+        updateRecipes([])
+      } 
+      else {
+        Axios.get(`/recipes/${rids_str}`).then((response) => {
           if (response.data.success) {
             if (controlVariables.loadMore) {
               updateRecipes([...Recipes, ...response.data.recipes]);
@@ -41,7 +45,8 @@ function LandingPage() {
           } else {
             alert('Failed to fectch recipes data');
           }
-      });
+        });
+      }
     });
   };
 
