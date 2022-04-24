@@ -16,9 +16,8 @@ import DetailRecipePage from './views/DetailRecipePage/DetailRecipePage'
 import EditRecipePage from './views/EditRecipePage/EditRecipePage'
 import axios from 'axios';
 
-//axios.defaults.baseURL = 'https://recipepad.azurewebsites.net/';
-
-axios.defaults.baseURL = 'http://localhost:5000';
+axios.defaults.baseURL = 'https://recipepad.azurewebsites.net/';
+// axios.defaults.baseURL = 'http://localhost:5000';
 axios.defaults.withCredentials = true
 axios.defaults.headers.common['Content-Type'] = 'application/json; charset=utf-8';
 axios.defaults.headers.common['Cache-Control'] = 'no-cache';
