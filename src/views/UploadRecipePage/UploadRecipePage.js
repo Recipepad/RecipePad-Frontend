@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { Typography, Button, Form, Input, Divider, Row, Col } from 'antd';
 import UploadOutlined from '@ant-design/icons/UploadOutlined';
 import FileUpload from '../../components/FileUpload';
+import Path from 'path';
+import uploadFileToBlob, { isStorageConfigured } from '../../azureBlob';
 import Axios from 'axios';
 
 const { Title } = Typography;
 const { TextArea } = Input;
+const storageConfigured = isStorageConfigured();
 
 function UploadRecipePage(props) {
   const [TitleValue, setTitleValue] = useState('');
@@ -14,6 +17,69 @@ function UploadRecipePage(props) {
   const [ingredientsValue, setingredientsValue] = useState([{ ingredient: "", amount: "" }]);
   const [Images, setImages] = useState([]);
   const [countStep, setCountStep] = useState(1);
+  const baseURL = 'https://recipepadblob.blob.core.windows.net/images/'
+
+  // all blobs in container
+  const [blobList, setBlobList] = useState([]);
+
+  // current file to upload into container
+  const [fileSelected, setFileSelected] = useState(null);
+
+  // UI/form management
+  const [uploading, setUploading] = useState(false);
+  const [inputKey, setInputKey] = useState(Math.random().toString(36));
+
+  const onFileChange = (event) => {
+    // capture file into state
+    setFileSelected(event.target.files[0]);
+    console.log(event.target.files[0])
+  };
+
+  // const onFileUpload = async () => {
+  //   // prepare UI
+  //   setUploading(true);
+
+  //   // *** UPLOAD TO AZURE STORAGE ***
+  //   const blobsInContainer = await uploadFileToBlob(fileSelected);
+
+  //   // prepare UI for results
+  //   setBlobList(blobsInContainer);
+
+  //   // reset state/form
+  //   setFileSelected(null);
+  //   setUploading(false);
+  //   setInputKey(Math.random().toString(36));
+  // };
+
+  // display form
+  const DisplayForm = () => (
+    <div>
+      <input type="file" onChange={onFileChange} key={inputKey || ''} />
+      {/* <button type="submit" onClick={onFileUpload}>
+        Upload!
+      </button> */}
+    </div>
+  );
+
+  // display file name and image
+  const DisplayImagesFromContainer = () => (
+    <div>
+      <h2>Container items</h2>
+      <ul>
+        {blobList.map((item) => {
+          return (
+            <li key={item}>
+              <div>
+                {Path.basename(item)}
+                <br />
+                {/* <img src={item} alt={item} height="200" /> */}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
 
   const onTitleChange = (event) => {
     setTitleValue(event.currentTarget.value);
@@ -32,21 +98,14 @@ function UploadRecipePage(props) {
       !TitleValue ||
       !DescriptionValue ||
       !ingredientsValue ||
-      !stepsValue
+      !stepsValue 
       // !Images
     ) {
       return alert('fill all the fields first!');
     }
 
-    // const convertIngredientsValue = ingredientsValue.map(result => 
-    // ({
-    //   result.ingredient: result.amount,
-    // }))
-
     var convertIngredientsValue = ingredientsValue.reduce(
       (obj, item) => Object.assign(obj, { [item.ingredient]: item.amount }), {});
-    
-    console.log(convertIngredientsValue)
 
     const variables = {
       uid: window.localStorage.userId,
@@ -54,33 +113,44 @@ function UploadRecipePage(props) {
       steps: stepsValue,
       ingredients: convertIngredientsValue,
       description: DescriptionValue,
-      // images: Images,
+      // images: Images
     };
 
+    console.log(fileSelected)
     console.log(window.localStorage)
     console.log(JSON.stringify(variables))
     Axios.post('/recipe', variables).then((response) => {
       console.log(response)
+      // baseURL + each of cover image id
+      // for loop -> step image ids --> baseURL + each of the step image id --> to blob storage (n + 1)
+      // To Do ...
+      
+      console.log(response.data.cover_image_id)
+
+      var new_file = new File([fileSelected], response.data.cover_image_id);
+      console.log(new_file)
+
+      // prepare UI
+      setUploading(true);
+
+      // *** UPLOAD TO AZURE STORAGE ***
+      const blobsInContainer = uploadFileToBlob(new_file);
+
+      // prepare UI for results
+      setBlobList(blobsInContainer);
+
+      // reset state/form
+      setFileSelected(null);
+      setUploading(false);
+      setInputKey(Math.random().toString(36));
+
       if (response.data.success) {
-        posthistory(response.data.recipe);
         alert('Recipe Successfully Uploaded');
-        props.history.push('/recipe');
+        // props.history.push('/recipe');
       } else {
         alert('Failed to upload recipe');
       }
     });
-
-    const posthistory = (recipe) => {
-      Axios.post('/recipe', recipe).then((response) => {
-        // baseURL + each of cover image id
-        // for loop -> step image ids --> baseURL + each of the step image id --> to blob storage (n + 1)
-        if (response.data.success) {
-          alert('Product Successfully Uploaded');
-        } else {
-          alert('Failed to upload Product');
-        }
-      });
-    };
   };
 
   // <------------  Ingredients onChange Start ------------>
@@ -141,12 +211,20 @@ function UploadRecipePage(props) {
       </div>
       <Form onSubmit={onSubmit}>
         <Divider>Cover Image</Divider>
-        {/* DropZone */}
+        {/* DropZone
         <label>Upload cover image</label>
         <FileUpload style={{ cursor: 'pointer' }} refreshFunction={updateImages} />
         <p style={{ color: 'red' }}>
           *drop or choose from files, left click image to delete on right area
-        </p>
+        </p> */}
+        <div>
+          <h1>Upload file to Azure Blob Storage</h1>
+          {storageConfigured && !uploading && DisplayForm()}
+          {storageConfigured && uploading && <div>Uploading</div>}
+          <hr />
+          {storageConfigured && blobList.length > 0 && DisplayImagesFromContainer()}
+          {!storageConfigured && <div>Storage is not configured.</div>}
+        </div>
         <br />
         <br />
         <Divider>Title</Divider>
@@ -163,7 +241,7 @@ function UploadRecipePage(props) {
         <div>
           {ingredientsValue.map((x, i) => {
             return (
-              <div>
+              <div key={x}>
                 <Input.Group>
                   <Row gutter={8}>
                     <Col span={8}>
@@ -200,14 +278,22 @@ function UploadRecipePage(props) {
         <div>
           {stepsValue.map((y, j) => {
             return (
-              <div>
+              <div key={y}>
                 <Divider orientation="left"> Step {countStep} </Divider>
-                {/* DropZone */}
+                {/* DropZone
                 <label>Upload Step Image</label>
                 <FileUpload style={{ cursor: 'pointer' }} refreshFunction={updateImages} />
                 <p style={{ color: 'red' }}>
                   *drop or choose from files, left click image to delete on right area
-                </p>
+                </p> */}
+                {/* <div>
+                  <h1>Upload file to Azure Blob Storage</h1>
+                  {storageConfigured && !uploading && DisplayForm()}
+                  {storageConfigured && uploading && <div>Uploading</div>}
+                  <hr />
+                  {storageConfigured && blobList.length > 0 && DisplayImagesFromContainer()}
+                  {!storageConfigured && <div>Storage is not configured.</div>}
+                </div> */}
                 <br />
                 <br />
                 <label>Step Sub-title</label>
@@ -218,27 +304,6 @@ function UploadRecipePage(props) {
                 <TextArea name="detail" value={y.detail} onChange={e => handleInputStepChange(e, j)}/>
                 <br />
                 <br />
-                {/* <Input.Group>
-                  <Row gutter={8}>
-                    <Col span={8}>
-                      <Input
-                        name="ingredient"
-                        placeholder="Enter Ingredient Name"
-                        value={x.ingredient}
-                        onChange={e => handleInputChange(e, i)}
-                      />
-                    </Col>
-                    <Col span={8}>
-                      <Input
-                        style={{ marginLeft: 20 }}
-                        name="amount"
-                        placeholder="Enter Amount"
-                        value={x.amount}
-                        onChange={e => handleInputChange(e, i)}
-                      />
-                    </Col>
-                  </Row>
-                </Input.Group> */}
                 <div>
                   {stepsValue.length !== 1 && <Button
                     style={{ marginRight: 20 }}
