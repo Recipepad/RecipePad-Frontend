@@ -1,6 +1,6 @@
 import { BlobServiceClient} from '@azure/storage-blob';
 
-const sasToken = process.env.storagesastoken || "sv=2020-08-04&ss=b&srt=sco&sp=rwdlactfx&se=2022-04-26T09:20:57Z&st=2022-04-26T01:20:57Z&spr=https&sig=frE1Pdgt2wzFNZQZwFe3OoTywKoOFfIsem1PaUweEVU%3D"; // Fill string with your SAS token
+const sasToken = process.env.storagesastoken || "sv=2020-08-04&ss=b&srt=sco&sp=rwdlactfx&se=2022-04-27T16:55:04Z&st=2022-04-26T16:55:04Z&spr=https&sig=z9labORAgduQxnuCuFKxhi4KophYRkqdq0pi43yrXqU%3D"; // Fill string with your SAS token
 const containerName = `images`;
 const storageAccountName = process.env.storageresourcename || "recipepadblob"; // Fill string with your Storage resource name
 
