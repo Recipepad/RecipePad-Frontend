@@ -67,8 +67,12 @@ export function updateProfile(dataToSubmit) {
     }
 }
 
-export function addToBookmark(_id) {
-    const request = axios.get(`/add_bookmark?recipeId=${_id}`)
+export function addToBookmark(rid) {
+    const dataToSubmit = {
+        rid: rid,
+        uid: `${window.localStorage.userId}`
+    }
+    const request = axios.post(`/bookmark`, dataToSubmit)
         .then(response => response.data);
     return {
         type: ADD_TO_BOOKMARK_USER,
