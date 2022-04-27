@@ -1,19 +1,89 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Typography, Button, Form, Input, Divider, Row, Col } from 'antd';
 import UploadOutlined from '@ant-design/icons/UploadOutlined';
-import FileUpload from '../../components/FileUpload';
+import uploadFileToBlob, { isStorageConfigured } from '../../azureBlob';
 import Axios from 'axios';
 
 const { Title } = Typography;
 const { TextArea } = Input;
+const storageConfigured = isStorageConfigured();
 
 function UploadRecipePage(props) {
   const [TitleValue, setTitleValue] = useState('');
   const [DescriptionValue, setDescriptionValue] = useState('');
-  const [stepsValue, setstepsValue] = useState([{ title: "", detail: "", imgid: "" }]);
-  const [ingredientsValue, setingredientsValue] = useState([{ ingredient: "", amount: "" }]);
-  const [Images, setImages] = useState([]);
+  const [StepsValue, setStepsValue] = useState([{
+    topost: {
+      title: "", detail: "", imgid: ""
+    },
+    file: null,
+    countStep: 1
+   }]);
+  const [IngredientsValue, setIngredientsValue] = useState([{ ingredient: "", amount: "" }]);
   const [countStep, setCountStep] = useState(1);
+
+  // all blobs in container
+  const [blobList, setBlobList] = useState([]);
+
+  // current file to upload into container
+  const [coverImageSelected, setCoverImageSelected] = useState(null);
+  const [StepImages, setStepImages] = useState([]);
+
+  const [preview, setPreview] = useState()
+
+  // create a preview as a side effect, whenever selected file is changed
+  useEffect(() => {
+    if (!coverImageSelected) {
+        setPreview(undefined)
+        return
+    }
+
+    const objectUrl = URL.createObjectURL(coverImageSelected)
+    setPreview(objectUrl)
+
+    // free memory when ever this component is unmounted
+    return () => URL.revokeObjectURL(objectUrl)
+  }, [coverImageSelected])
+
+  const onCoverImageChange = (event) => {
+    // capture file into state
+    setCoverImageSelected(event.target.files[0]);
+    console.log("onCoverImageChange")
+    console.log(event.target.files[0])
+  };
+
+  const onStepImageChange = (event) => {
+    // capture file into state
+    console.log("onStepImageChange")
+    setStepImages([...StepImages, event.target.files[0]]);
+    const stepIndex = event.target.getAttribute('countStep') - 1
+    console.log(stepIndex)
+    StepsValue[stepIndex]['file'] = event.target.files[0]
+    console.log(event.target.files[0])
+  };
+
+  const getFileUrl = (file) => {
+    if (file) {
+      return URL.createObjectURL(file)
+    } else {
+      return ""
+    }
+  }
+
+  // display form for cover image
+  const DisplayForm = () => (
+    <div>
+      <input type="file" style={{ width: '200px' }} onChange={onCoverImageChange} />
+      {coverImageSelected &&  <img style={{ width: '200px' }} src={preview} /> }
+    </div>
+  );
+
+  // display form for step images
+  const DisplayStepForm = ({y}) => (
+    <div>
+      <input key={y} countStep={y.countStep} type="file" style={{ width: '200px' }} onChange={onStepImageChange} />
+      <img style={{ width: '200px' }} src={getFileUrl(y.file)} />
+    </div>
+  );
 
   const onTitleChange = (event) => {
     setTitleValue(event.currentTarget.value);
@@ -23,64 +93,70 @@ function UploadRecipePage(props) {
     setDescriptionValue(event.currentTarget.value);
   };
 
-  const updateImages = (newImages) => {
-    setImages(newImages);
-  };
   const onSubmit = (event) => {
     event.preventDefault();
     if (
       !TitleValue ||
       !DescriptionValue ||
-      !ingredientsValue ||
-      !stepsValue
-      // !Images
+      !IngredientsValue ||
+      !StepsValue 
+      // !StepImages
     ) {
       return alert('fill all the fields first!');
     }
 
-    // const convertIngredientsValue = ingredientsValue.map(result => 
-    // ({
-    //   result.ingredient: result.amount,
-    // }))
-
-    var convertIngredientsValue = ingredientsValue.reduce(
+    var convertIngredientsValue = IngredientsValue.reduce(
       (obj, item) => Object.assign(obj, { [item.ingredient]: item.amount }), {});
-    
-    console.log(convertIngredientsValue)
 
     const variables = {
       uid: window.localStorage.userId,
       title: TitleValue,
-      steps: stepsValue,
+      steps: StepsValue.map((item) => {
+        return {
+          title: item.topost.title,
+          detail: item.topost.detail,
+          imgid: item.topost.imgid,
+        }
+      }),
       ingredients: convertIngredientsValue,
       description: DescriptionValue,
-      // images: Images,
+      // images: StepImages
     };
 
     console.log(window.localStorage)
     console.log(JSON.stringify(variables))
     Axios.post('/recipe', variables).then((response) => {
       console.log(response)
+      // To Do ...
+      console.log(response.data.cover_image_id)
+      console.log(response.data.step_image_id)
+
+      var coverImage = new File([coverImageSelected], response.data.cover_image_id);
+      console.log(coverImage)
+
+      // *** UPLOAD TO AZURE STORAGE ***
+      
+      // Upload step images
+      StepsValue.forEach(function (value, i) {
+        console.log('%d: %s', i, value);
+        console.log(response.data.step_image_id[i])
+        var stepImage = new File([value.file], response.data.step_image_id[i])
+        uploadFileToBlob(stepImage);
+      });
+
+      uploadFileToBlob(coverImage);
+
+      // reset state/form
+      setCoverImageSelected(null);
+      setStepImages([]);
+
       if (response.data.success) {
-        posthistory(response.data.recipe);
         alert('Recipe Successfully Uploaded');
-        props.history.push('/recipe');
+        // props.history.push('/recipe');
       } else {
         alert('Failed to upload recipe');
       }
     });
-
-    const posthistory = (recipe) => {
-      Axios.post('/recipe', recipe).then((response) => {
-        // baseURL + each of cover image id
-        // for loop -> step image ids --> baseURL + each of the step image id --> to blob storage (n + 1)
-        if (response.data.success) {
-          alert('Product Successfully Uploaded');
-        } else {
-          alert('Failed to upload Product');
-        }
-      });
-    };
   };
 
   // <------------  Ingredients onChange Start ------------>
@@ -88,21 +164,21 @@ function UploadRecipePage(props) {
   // handle input change
   const handleInputChange = (e, index) => {
     const { name, value } = e.target;
-    const list = [...ingredientsValue];
+    const list = [...IngredientsValue];
     list[index][name] = value;
-    setingredientsValue(list);
+    setIngredientsValue(list);
   };
   
   // handle click event of the Remove button
   const handleRemoveClick = index => {
-    const list = [...ingredientsValue];
+    const list = [...IngredientsValue];
     list.splice(index, 1);
-    setingredientsValue(list);
+    setIngredientsValue(list);
   };
   
   // handle click event of the Add button
   const handleAddClick = () => {
-    setingredientsValue([...ingredientsValue, { ingredient: "", amount: "" }]);
+    setIngredientsValue([...IngredientsValue, { ingredient: "", amount: "" }]);
   };
 
   // <------------  Ingredients onChange End------------>
@@ -111,23 +187,31 @@ function UploadRecipePage(props) {
   // handle input change
   const handleInputStepChange = (e, index) => {
     const { name, value } = e.target;
-    const list = [...stepsValue];
-    list[index][name] = value;
-    setstepsValue(list);
+    const list = [...StepsValue];
+    list[index]['topost'][name] = value;
+    setStepsValue(list);
   };
   
   // handle click event of the Remove button
   const handleRemoveStepClick = index => {
-    const list = [...stepsValue];
+    const list = [...StepsValue];
     list.splice(index, 1);
-    setstepsValue(list);
+    setStepsValue(list);
     setCountStep(countStep - 1);
   };
   
   // handle click event of the Add button
   const handleAddStepClick = () => {
-    setstepsValue([...stepsValue, { title: "", detail: "", imgid: ""}]);
-    setCountStep(countStep + 1);
+    setStepsValue([...StepsValue, {
+      topost: {
+        title: "", detail: "", imgid: ""
+      },
+      file: null,
+      countStep: countStep + 1
+     }]);
+     setCountStep(countStep + 1);
+    
+    console.log("handleAddStepClick")
   };
   // <------------  Steps onChange End ------------>
 
@@ -141,12 +225,13 @@ function UploadRecipePage(props) {
       </div>
       <Form onSubmit={onSubmit}>
         <Divider>Cover Image</Divider>
-        {/* DropZone */}
-        <label>Upload cover image</label>
-        <FileUpload style={{ cursor: 'pointer' }} refreshFunction={updateImages} />
-        <p style={{ color: 'red' }}>
-          *drop or choose from files, left click image to delete on right area
-        </p>
+        <div>
+          <label>Upload cover image</label>
+          {storageConfigured && DisplayForm()}
+          <p style={{ color: 'red' }}>
+          *drop or choose from files, choose from file again but cancel can delete the image
+          </p>
+        </div>
         <br />
         <br />
         <Divider>Title</Divider>
@@ -161,9 +246,9 @@ function UploadRecipePage(props) {
         <Divider>Ingredients</Divider>
         <label>Ingredients</label>
         <div>
-          {ingredientsValue.map((x, i) => {
+          {IngredientsValue.map((x, i) => {
             return (
-              <div>
+              <div key={x}>
                 <Input.Group>
                   <Row gutter={8}>
                     <Col span={8}>
@@ -186,69 +271,49 @@ function UploadRecipePage(props) {
                   </Row>
                 </Input.Group>
                 <div>
-                  {ingredientsValue.length !== 1 && <Button
+                  {IngredientsValue.length !== 1 && <Button
                     style={{ marginRight: 20 }}
                     onClick={() => handleRemoveClick(i)}>Remove</Button>}
-                  {ingredientsValue.length - 1 === i && <Button onClick={handleAddClick}>Add</Button>}
+                  {IngredientsValue.length - 1 === i && <Button onClick={handleAddClick}>Add</Button>}
                 </div>
               </div>
             );
           })}
-          <div style={{ marginTop: 20 }}>{JSON.stringify(ingredientsValue)}</div>
+          <div style={{ marginTop: 20 }}>{JSON.stringify(IngredientsValue)}</div>
         </div>
         <Divider> Methods </Divider>
         <div>
-          {stepsValue.map((y, j) => {
+          {StepsValue.map((y, j) => {
             return (
-              <div>
-                <Divider orientation="left"> Step {countStep} </Divider>
-                {/* DropZone */}
-                <label>Upload Step Image</label>
-                <FileUpload style={{ cursor: 'pointer' }} refreshFunction={updateImages} />
-                <p style={{ color: 'red' }}>
-                  *drop or choose from files, left click image to delete on right area
-                </p>
+              <div key={y.countStep}>
+                <Divider orientation="left"> Step {y.countStep} </Divider>
+                <div>
+                  <label>Upload image for the current step</label>
+                  {storageConfigured && DisplayStepForm({y})}
+                  <p style={{ color: 'red' }}>
+                  *drop or choose from files, choose from file again but cancel can delete the image
+                  </p>
+                </div>
                 <br />
                 <br />
                 <label>Step Sub-title</label>
-                <Input name="title" value={y.title} onChange={e => handleInputStepChange(e, j)}/>
+                <Input name="title" value={y.topost.title} onChange={e => handleInputStepChange(e, j)}/>
                 <br />
                 <br />
                 <label>Step description</label>
-                <TextArea name="detail" value={y.detail} onChange={e => handleInputStepChange(e, j)}/>
+                <TextArea name="detail" value={y.topost.detail} onChange={e => handleInputStepChange(e, j)}/>
                 <br />
                 <br />
-                {/* <Input.Group>
-                  <Row gutter={8}>
-                    <Col span={8}>
-                      <Input
-                        name="ingredient"
-                        placeholder="Enter Ingredient Name"
-                        value={x.ingredient}
-                        onChange={e => handleInputChange(e, i)}
-                      />
-                    </Col>
-                    <Col span={8}>
-                      <Input
-                        style={{ marginLeft: 20 }}
-                        name="amount"
-                        placeholder="Enter Amount"
-                        value={x.amount}
-                        onChange={e => handleInputChange(e, i)}
-                      />
-                    </Col>
-                  </Row>
-                </Input.Group> */}
                 <div>
-                  {stepsValue.length !== 1 && <Button
+                  {StepsValue.length !== 1 && <Button
                     style={{ marginRight: 20 }}
                     onClick={() => handleRemoveStepClick(j)}>Remove</Button>}
-                  {stepsValue.length - 1 === j && <Button onClick={handleAddStepClick}>Add</Button>}
+                  {StepsValue.length - 1 === j && <Button onClick={handleAddStepClick}>Add</Button>}
                 </div>
               </div>
             );
           })}
-          <div style={{ marginTop: 20 }}>{JSON.stringify(stepsValue)}</div>
+          <div style={{ marginTop: 20 }}>{JSON.stringify(StepsValue)}</div>
         </div>
         <Divider>Post</Divider>
         <Button onClick={onSubmit} type='dashed' size='large'>
