@@ -11,7 +11,13 @@ const storageConfigured = isStorageConfigured();
 function UploadRecipePage(props) {
   const [TitleValue, setTitleValue] = useState('');
   const [DescriptionValue, setDescriptionValue] = useState('');
-  const [StepsValue, setStepsValue] = useState([{ title: "", detail: "", imgid: "" }]);
+  const [StepsValue, setStepsValue] = useState([{
+    topost: {
+      title: "", detail: "", imgid: ""
+    },
+    file: null,
+    countStep: 1
+   }]);
   const [IngredientsValue, setIngredientsValue] = useState([{ ingredient: "", amount: "" }]);
   const [countStep, setCountStep] = useState(1);
 
@@ -41,14 +47,27 @@ function UploadRecipePage(props) {
   const onCoverImageChange = (event) => {
     // capture file into state
     setCoverImageSelected(event.target.files[0]);
+    console.log("onCoverImageChange")
     console.log(event.target.files[0])
   };
 
   const onStepImageChange = (event) => {
     // capture file into state
-    setStepImages(event.target.files[0]);
+    console.log("onStepImageChange")
+    setStepImages([...StepImages, event.target.files[0]]);
+    const stepIndex = event.target.getAttribute('countStep') - 1
+    console.log(stepIndex)
+    StepsValue[stepIndex]['file'] = event.target.files[0]
     console.log(event.target.files[0])
   };
+
+  const getFileUrl = (file) => {
+    if (file) {
+      return URL.createObjectURL(file)
+    } else {
+      return ""
+    }
+  }
 
   // display form for cover image
   const DisplayForm = () => (
@@ -61,8 +80,8 @@ function UploadRecipePage(props) {
   // display form for step images
   const DisplayStepForm = ({y}) => (
     <div>
-      <input key={y} type="file" style={{ width: '200px' }} onChange={onStepImageChange} />
-      {StepImages &&  <img style={{ width: '200px' }} src={preview} /> }
+      <input key={y} countStep={y.countStep} type="file" style={{ width: '200px' }} onChange={onStepImageChange} />
+      <img style={{ width: '200px' }} src={getFileUrl(y.file)} />
     </div>
   );
 
@@ -74,9 +93,6 @@ function UploadRecipePage(props) {
     setDescriptionValue(event.currentTarget.value);
   };
 
-  const updateStepImages = (newStepImages) => {
-    setStepImages(newStepImages);
-  };
   const onSubmit = (event) => {
     event.preventDefault();
     if (
@@ -95,7 +111,13 @@ function UploadRecipePage(props) {
     const variables = {
       uid: window.localStorage.userId,
       title: TitleValue,
-      steps: StepsValue,
+      steps: StepsValue.map((item) => {
+        return {
+          title: item.topost.title,
+          detail: item.topost.detail,
+          imgid: item.topost.imgid,
+        }
+      }),
       ingredients: convertIngredientsValue,
       description: DescriptionValue,
       // images: StepImages
@@ -109,11 +131,20 @@ function UploadRecipePage(props) {
       console.log(response.data.cover_image_id)
       console.log(response.data.step_image_id)
 
-      var new_file = new File([coverImageSelected], response.data.cover_image_id);
-      console.log(new_file)
+      var coverImage = new File([coverImageSelected], response.data.cover_image_id);
+      console.log(coverImage)
 
       // *** UPLOAD TO AZURE STORAGE ***
-      uploadFileToBlob(new_file);
+      
+      // Upload step images
+      StepsValue.forEach(function (value, i) {
+        console.log('%d: %s', i, value);
+        console.log(response.data.step_image_id[i])
+        var stepImage = new File([value.file], response.data.step_image_id[i])
+        uploadFileToBlob(stepImage);
+      });
+
+      uploadFileToBlob(coverImage);
 
       // reset state/form
       setCoverImageSelected(null);
@@ -157,7 +188,7 @@ function UploadRecipePage(props) {
   const handleInputStepChange = (e, index) => {
     const { name, value } = e.target;
     const list = [...StepsValue];
-    list[index][name] = value;
+    list[index]['topost'][name] = value;
     setStepsValue(list);
   };
   
@@ -171,8 +202,16 @@ function UploadRecipePage(props) {
   
   // handle click event of the Add button
   const handleAddStepClick = () => {
-    setStepsValue([...StepsValue, { title: "", detail: "", imgid: ""}]);
-    setCountStep(countStep + 1);
+    setStepsValue([...StepsValue, {
+      topost: {
+        title: "", detail: "", imgid: ""
+      },
+      file: null,
+      countStep: countStep + 1
+     }]);
+     setCountStep(countStep + 1);
+    
+    console.log("handleAddStepClick")
   };
   // <------------  Steps onChange End ------------>
 
@@ -246,8 +285,8 @@ function UploadRecipePage(props) {
         <div>
           {StepsValue.map((y, j) => {
             return (
-              <div key={y}>
-                <Divider orientation="left"> Step {countStep} </Divider>
+              <div key={y.countStep}>
+                <Divider orientation="left"> Step {y.countStep} </Divider>
                 <div>
                   <label>Upload image for the current step</label>
                   {storageConfigured && DisplayStepForm({y})}
@@ -258,11 +297,11 @@ function UploadRecipePage(props) {
                 <br />
                 <br />
                 <label>Step Sub-title</label>
-                <Input name="title" value={y.title} onChange={e => handleInputStepChange(e, j)}/>
+                <Input name="title" value={y.topost.title} onChange={e => handleInputStepChange(e, j)}/>
                 <br />
                 <br />
                 <label>Step description</label>
-                <TextArea name="detail" value={y.detail} onChange={e => handleInputStepChange(e, j)}/>
+                <TextArea name="detail" value={y.topost.detail} onChange={e => handleInputStepChange(e, j)}/>
                 <br />
                 <br />
                 <div>
