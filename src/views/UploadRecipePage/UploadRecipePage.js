@@ -279,7 +279,7 @@ function UploadRecipePage(props) {
               </div>
             );
           })}
-          <div style={{ marginTop: 20 }}>{JSON.stringify(IngredientsValue)}</div>
+          {/* <div style={{ marginTop: 20 }}>{JSON.stringify(IngredientsValue)}</div> */}
         </div>
         <Divider> Methods </Divider>
         <div>
@@ -313,7 +313,7 @@ function UploadRecipePage(props) {
               </div>
             );
           })}
-          <div style={{ marginTop: 20 }}>{JSON.stringify(StepsValue)}</div>
+          {/* <div style={{ marginTop: 20 }}>{JSON.stringify(StepsValue)}</div> */}
         </div>
         <Divider>Post</Divider>
         <Button onClick={onSubmit} type='dashed' size='large'>
