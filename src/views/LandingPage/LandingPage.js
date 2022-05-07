@@ -74,7 +74,8 @@ function LandingPage() {
             <a href={`/recipe/${recipe.rid}`}>
               {' '}
               <img
-                width={200}
+                width={180}
+                height={100}
                 src={BASE_IMAGE_URL + recipe.cover_imgid}
               />
               {/* <ImageSlider images={recipe.images} /> */}

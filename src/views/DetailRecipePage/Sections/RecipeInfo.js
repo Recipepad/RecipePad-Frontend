@@ -4,8 +4,7 @@ import { Popover, Button, Descriptions, Image, Layout, Divider, Row, Col, List, 
 import MailOutlined from '@ant-design/icons/MailOutlined';
 import HomeOutlined from '@ant-design/icons/HomeOutlined';
 import LaptopOutlined from '@ant-design/icons/LaptopOutlined';
-import HeartOutlined from '@ant-design/icons/HeartOutlined';
-import UserOutlined from '@ant-design/icons/UserOutlined';
+import { HeartTwoTone, getTwoToneColor, setTwoToneColor } from '@ant-design/icons';
 
 import { useSelector } from 'react-redux';
 
@@ -29,7 +28,8 @@ function RecipeInfo(props) {
       alert('Please Log in first');
       return props.parent.history.push('/login');
     }
-    props.addToBookmark(props.detail._id);
+    props.addToBookmark(props.Recipe.rid);
+    alert('Recipe Bookmarked');
   };
 
   const rendercategory = (choice) => {
@@ -72,6 +72,16 @@ function RecipeInfo(props) {
 
   return (
   <div>
+    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Button
+          size='large'
+          shape='round'
+          type='danger'
+          onClick={addToBookmarkhandler}
+        >
+          <HeartTwoTone twoToneColor="#eb2f96" />
+        </Button>
+      </div>
     <Row>
       <Col span={8}></Col>
       <Col span={8}>
