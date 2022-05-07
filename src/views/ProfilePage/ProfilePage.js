@@ -6,22 +6,28 @@ import ProfileOutlined from '@ant-design/icons/ProfileOutlined';
 import ScheduleOutlined from '@ant-design/icons/ScheduleOutlined';
 import EditOutlined from '@ant-design/icons/EditOutlined';
 import DeleteOutlined from '@ant-design/icons/DeleteOutlined';
+import { UserOutlined } from '@ant-design/icons';
 
 import { useDispatch } from 'react-redux';
 import { fetchProfile, updateProfile } from '../../actions/user_actions';
 
+const BASE_IMAGE_URL = "https://recipepadblob.blob.core.windows.net/images/"
+
 function ProfilePage() {
   const dispatch = useDispatch();
   const [emailValue, setemailValue] = useState('');
-  const [usernameValue, setusernameValue] = useState('');
+  const [userId, setuserId] = useState('');
   const [nicknameValue, setnicknameValue] = useState('');
   const [Posts, setPosts] = useState([]);
   const [image, setimageValue] = useState('');
 
   useEffect(() => {
-    Axios.get(`/recipe/${window.localStorage.uid}`).then((response) => {
+    Axios.get(`/user/${window.localStorage.userId}/recipes`).then((response) => {
       if (response.data.success) {
-        setPosts(response.data.post);
+        var rids_str = response.data.rids.join(";");
+        Axios.get(`/recipes/${rids_str}`).then((response) => {
+          setPosts(response.data.recipes);
+        });
       } else {
         alert('Failed to get post history');
       }
@@ -30,7 +36,7 @@ function ProfilePage() {
 
   useEffect(() => {
     dispatch(fetchProfile()).then((response) => {
-      setusernameValue(response.payload.username);
+      setuserId(response.payload.uid);
       setemailValue(response.payload.email);
       setnicknameValue(response.payload.nickname);
       setimageValue(response.payload.image);
@@ -49,7 +55,10 @@ function ProfilePage() {
       return alert('email is required');
     }
     let dataToSubmit = {
+      uid: userId,
       email: emailValue,
+      nickname: nicknameValue,
+      avatar_imgid: "None"
     };
     dispatch(updateProfile(dataToSubmit)).then((response) => {
       alert('profile successfully updated');
@@ -67,7 +76,7 @@ function ProfilePage() {
     Axios.delete(`/recipe/${rid}`).then(
       (response) => {
         if (response.data.success) {
-          alert(response.data.message);
+          alert('recipe delete succeeded');
         } else {
           alert('delete post failed');
         }
@@ -79,7 +88,7 @@ function ProfilePage() {
     <div style={{ width: '80%', margin: '3rem auto ' }}>
       <div style={{ textAlign: 'left' }}>
         <h1>
-          <Avatar src={image} alt='image' />
+        <Avatar icon={<UserOutlined />} />
           My Profile{' '}
           <Link className='btn btn-light' to='/settings'>
             <ProfileOutlined type='setting' style={{ color: 'grey' }} />
@@ -88,8 +97,8 @@ function ProfilePage() {
       </div>
       <br />
       <Form onSubmit={onSubmit}>
-        <label>User Name</label>
-        <Input  value={usernameValue} disabled/>
+        <label>User Id</label>
+        <Input  value={userId} disabled/>
         <br />
         <br />
         <label>Email</label>
@@ -129,11 +138,10 @@ function ProfilePage() {
                 <img
                   style={{ width: '70px' }}
                   alt='recipe'
-                  src={renderImage(p.images)}
+                  src={BASE_IMAGE_URL + p.cover_imgid}
                 />
               </td>
               <td>{p.title}</td>
-              <td>{p.author}</td>
               <td>
                 <a href={`/recipe/edit/${p.id}`}>
                   <Button type='dashed'>
@@ -150,7 +158,7 @@ function ProfilePage() {
                         'Are you sure you want to delete this post?'
                       )
                     )
-                      removeItem(p.id);
+                      removeItem(p.rid);
                   }}
                 >
                   <DeleteOutlined type='delete' />
