@@ -29,7 +29,6 @@ function RecipeInfo(props) {
       return props.parent.history.push('/login');
     }
     props.addToBookmark(props.Recipe.rid);
-    console.log(object)
     alert('Recipe Bookmarked');
   };
 

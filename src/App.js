@@ -8,7 +8,7 @@ import NavBar from "./views/NavBar/NavBar"
 import NotFound from "./views/NotFound"
 import Profile from './views/ProfilePage/ProfilePage'
 import Setting from './views/ProfilePage/Setting'
-import BookmarkPage from "./views/FavoritePage/FavoritePage"
+import FavoritePage from "./views/FavoritePage/FavoritePage"
 import Auth from "./auth"
 import LandingPage from "./views/LandingPage/LandingPage"
 import UploadRecipePage from './views/UploadRecipePage/UploadRecipePage'
@@ -37,7 +37,7 @@ const App = () => {
               <Route exact path="/recipe" component={Auth(LandingPage, true)} />
               <Route exact path="/profile" component={Auth(Profile, true)} />
               <Route exact path="/settings" component={Auth(Setting, true)} />
-              <Route exact path="/bookmark" component={Auth(BookmarkPage, true)} />
+              <Route exact path="/bookmark" component={Auth(FavoritePage, true)} />
               <Route exact path="/recipe/upload" component={Auth(UploadRecipePage, true)} />
               <Route exact path="/recipe/:recipeId" component={Auth(DetailRecipePage, true)} />
               <Route exact path="/recipe/edit/:recipeId" component={Auth(EditRecipePage, true)} />
