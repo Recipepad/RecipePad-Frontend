@@ -1,0 +1,5 @@
+{
+    "Key": "d341601d96ec4bfc992a7b36fce8f244",
+    "ModelPath": "foodTestv1",
+    "ServerHost": "https://eastus.api.cognitive.microsoft.com/customvision/v3.0/Prediction/0d37058d-36ad-427e-b254-d4dc8774b10c/classify/iterations/foodTestv1/image"
+}
