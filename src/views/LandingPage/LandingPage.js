@@ -113,7 +113,7 @@ function LandingPage(props) {
             </a>
           }
         >
-          <Meta title={recipe.title} description={`$${recipe.description}`} />
+          <Meta title={recipe.title} description={`$${recipe.description.substring(0, 25)}`} />
         </Card>
       </Col>
     );
