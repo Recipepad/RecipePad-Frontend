@@ -49,6 +49,12 @@ function RightMenu(props) {
           </Badge>
         </Menu.Item>
 
+        <Menu.Item key="smartsearch" style={{ paddingBottom: 8 }}>
+          <Badge>
+            <Tooltip placement="bottom" title="smartsearch"><a href="/smartsearch"><Icon type="camera" style={{ fontSize: 25}} /></a></Tooltip>
+          </Badge>
+        </Menu.Item>
+
         <Menu.Item key="logout">
           <Tooltip placement="bottom" title="sign out"><a onClick={logoutHandler}><Icon type="logout" style={{ fontSize: 25}} /></a></Tooltip>
         </Menu.Item>

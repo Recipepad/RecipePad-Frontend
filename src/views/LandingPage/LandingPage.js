@@ -9,7 +9,7 @@ import { render } from 'react-dom';
 const { Meta } = Card;
 const BASE_IMAGE_URL = "https://recipepadblob.blob.core.windows.net/images/"
 
-function LandingPage() {
+function LandingPage(props) {
   const [Recipes, updateRecipes] = useState([]);
   const [Skip, setSkip] = useState(0);
   const Limit = useState(8);
@@ -22,7 +22,15 @@ function LandingPage() {
       limit: Limit,
       loadMore: false,
     };
-    getRecipesBySearchTerm(defaultSearchTerm, controlVariables);
+
+    if (props.history.location.state?.tags === undefined) {
+      getRecipesBySearchTerm(defaultSearchTerm, controlVariables);
+    } else {
+      const tags_str = props.history.location.state?.tags.join(";")
+      getRecipesBySearchTerm(tags_str, controlVariables);
+      // Reset props state
+      props.history.replace(props.history.location.pathname, null);
+    }
   }, []);
 
   const getRecipesBySearchTerm = (searchTerm, controlVariables) => {

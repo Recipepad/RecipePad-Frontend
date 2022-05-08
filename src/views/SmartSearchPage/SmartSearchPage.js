@@ -1,17 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import RocketOutlined from '@ant-design/icons/RocketOutlined';
-import { Typography, Button, Form, Input, Divider, Row, Col } from 'antd';
+import { Typography, Button, Form, Input, Divider, Row, Col, Tag, Tooltip } from 'antd';
 import uploadFileToBlob, { isStorageConfigured } from '../../azureBlob';
+import { PlusOutlined } from '@ant-design/icons';
 import Axios from 'axios';
 const PredictionConfig = require("./config.json");
 
 const storageConfigured = isStorageConfigured();
 
-function SmartSearchPage() {
+function SmartSearchPage(props) {
     const [coverImageSelected, setCoverImageSelected] = useState(null);
-
-    const fs = require('fs');
+    const [predictedTags, setpredictedTags] = useState([]);
     const [preview, setPreview] = useState()
+    const PredictionApi = require("@azure/cognitiveservices-customvision-prediction");
+    const msRest = require("@azure/ms-rest-js");
+
+    const predictionKey = "358a625c3bd04ebf9bdb3e75403d00a2";
+    const predictionEndpoint = "https://eastus.api.cognitive.microsoft.com/";
+
+    const predictor_credentials = new msRest.ApiKeyCredentials({ inHeader: { "Prediction-key": predictionKey } });
+    const predictor = new PredictionApi.PredictionAPIClient(predictor_credentials, predictionEndpoint);
 
     
 
@@ -27,41 +35,19 @@ function SmartSearchPage() {
 
         
         var file = new File([coverImageSelected], "test_imag.jpg");
-        console.log(file)
 
-        let formData = new FormData();
-        const config = {
-            header: { 
-                'content-type': 'application/json',
-                'Prediction-key': "d341601d96ec4bfc992a7b36fce8f244"
-            },
-        };
-      
-        const data = {Url: "https://cdn.pixabay.com/photo/2016/12/26/17/28/spaghetti-1932466_1280.jpg"};
-        const json = JSON.stringify({Url: "https://cdn.pixabay.com/photo/2016/12/26/17/28/spaghetti-1932466_1280.jpg"})
+        predictor.classifyImage("75e311fd-f234-4c63-8351-51e96a561f27", "FreshProductv1", file).then(
+            (results) => {
 
-
-        Axios({
-            method: 'post',
-            url:  'https://eastus.api.cognitive.microsoft.com/customvision/v3.0/Prediction/0d37058d-36ad-427e-b254-d4dc8774b10c/classify/iterations/foodTestv1/url',
-            headers: {'content-type': 'application/json',
-            'Prediction-key': "d341601d96ec4bfc992a7b36fce8f244"}, 
-            data: {
-                Url: 'https://cdn.pixabay.com/photo/2016/12/26/17/28/spaghetti-1932466_1280.jpg', // This is the body part
+                const possibleTags = results.predictions.filter(
+                    (item) => item.probability > 0.5
+                ).map(
+                    (item) => item.tagName
+                );
+                console.log(possibleTags)
+                setpredictedTags(possibleTags)
             }
-          }).then((response) => {
-             console.log(response);
-          });
-
-        // Axios.post(
-        //     'https://eastus.api.cognitive.microsoft.com/customvision/v3.0/Prediction/0d37058d-36ad-427e-b254-d4dc8774b10c/classify/iterations/foodTestv1/url',
-        //     {"Url": "https://cdn.pixabay.com/photo/2016/12/26/17/28/spaghetti-1932466_1280.jpg"},
-        //     config
-        //     ).then((response) => {
-        //     console.log(response)
-        // });
-
-        
+        );
 
         // free memory when ever this component is unmounted
         return () => URL.revokeObjectURL(objectUrl)
@@ -70,39 +56,6 @@ function SmartSearchPage() {
     const onCoverImageChange = (event) => {
         // capture file into state
         setCoverImageSelected(event.target.files[0]);
-        console.log("onCoverImageChange")
-        console.log(event.target.files[0])
-
-        // const imageData = event.target.files[0]
-        // var image = new File([imageData], "test_imag.jpg");
-
-        
-
-
-
-        // const https = require('https');
-
-        // const customVisionPostOptions = {
-        //     hostname: "https://eastus.api.cognitive.microsoft.com/customvision/v3.0/Prediction/0d37058d-36ad-427e-b254-d4dc8774b10c/classify/iterations/foodTestv1/image",
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/octet-stream',
-        //         'Prediction-key': "d341601d96ec4bfc992a7b36fce8f244"
-        //     }             
-        // };
-        
-        // const customVisionPostRequest = https.request(customVisionPostOptions, (predictionResponse) => {
-        //     predictionResponse.on('data', function (data) {
-        //         const customVisionResponse = JSON.parse(data);
-        //         const predictions = customVisionResponse.predictions;
-        //         console.log(predictions);
-        //     });
-        // });
-
-
-        // customVisionPostRequest.write(fs.createWriteStream(image));
-        // customVisionPostRequest.end();
-
       };
 
     // display form for cover image
@@ -114,9 +67,18 @@ function SmartSearchPage() {
     );
 
     const onSubmit = (event) => {
-        alert("Submit Clicked")
+        if (predictedTags.length === 0) {
+            alert("Waiting More Tags for Search")
+        } else {
+            props.history.push('/recipe', {tags: predictedTags});
+        }
     }
 
+    const renderTags = predictedTags.map((tag, index) => {
+        return (
+            <Tag key={tag}> {tag} </Tag>
+        );
+    })
 
     return (
         <div style={{ width: '75%', margin: '3rem auto' }}>
@@ -133,6 +95,13 @@ function SmartSearchPage() {
                 *drop or choose from files, choose from file again but cancel can delete the image
             </p>
           </div>
+        <div>
+            {renderTags}
+        </div>
+
+        <br>
+        </br>
+
             <Button onClick={onSubmit} type='dashed' size='large'>
                 Search
             </Button>
