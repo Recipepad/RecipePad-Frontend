@@ -11,7 +11,9 @@ const storageConfigured = isStorageConfigured();
 function SmartSearchPage(props) {
     const [coverImageSelected, setCoverImageSelected] = useState(null);
     const [predictedTags, setpredictedTags] = useState([]);
-    const [preview, setPreview] = useState()
+    const [preview, setPreview] = useState();
+    const [inputVisible, setInputVisible] = useState(false);
+    const [inputValue, setInputValue] = useState();
     const PredictionApi = require("@azure/cognitiveservices-customvision-prediction");
     const msRest = require("@azure/ms-rest-js");
 
@@ -20,8 +22,6 @@ function SmartSearchPage(props) {
 
     const predictor_credentials = new msRest.ApiKeyCredentials({ inHeader: { "Prediction-key": predictionKey } });
     const predictor = new PredictionApi.PredictionAPIClient(predictor_credentials, predictionEndpoint);
-
-    
 
     // create a preview as a side effect, whenever selected file is changed
     useEffect(() => {
@@ -70,13 +70,40 @@ function SmartSearchPage(props) {
         if (predictedTags.length === 0) {
             alert("Waiting More Tags for Search")
         } else {
+            console.log(predictedTags)
             props.history.push('/recipe', {tags: predictedTags});
         }
     }
 
+    const handleClose = (removedTag) => {
+        const updatedTags = predictedTags.filter(tag => tag !== removedTag);
+        console.log(updatedTags)
+        setpredictedTags(updatedTags)
+    }
+
+    const handleInputChange = e => {
+        setInputValue(e.target.value)
+    }
+
+    const handleInputConfirm = () => {
+        setpredictedTags([...predictedTags, inputValue] )
+        setInputVisible(false)
+        setInputValue("")
+    }
+
+    const showInput = () => {
+        setInputVisible(true);
+    }
+
     const renderTags = predictedTags.map((tag, index) => {
         return (
-            <Tag key={tag}> {tag} </Tag>
+            <Tag 
+                key={tag}
+                closable={true} 
+                onClose={() => handleClose(tag)}
+                >
+                {tag} 
+            </Tag>
         );
     })
 
@@ -97,6 +124,24 @@ function SmartSearchPage(props) {
           </div>
         <div>
             {renderTags}
+            {inputVisible && (
+            <Input
+                // ref={saveInputRef}
+                type="text"
+                size="small"
+                className="tag-input"
+                value={inputValue}
+                onChange={handleInputChange}
+                onBlur={handleInputConfirm}
+                onPressEnter={handleInputConfirm}
+            />
+            )}
+            {!inputVisible && 
+            (<Tag className="site-tag-plus" onClick={showInput}>
+                <PlusOutlined /> New Tag
+            </Tag>)
+            }
+            
         </div>
 
         <br>
