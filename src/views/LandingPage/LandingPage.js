@@ -24,7 +24,7 @@ function LandingPage(props) {
     };
 
     if (props.history.location.state?.tags === undefined) {
-      getRecipesBySearchTerm(defaultSearchTerm, controlVariables);
+      getRecipesByRecommendation(controlVariables);
     } else {
       const tags_str = props.history.location.state?.tags.join(";")
       getRecipesBySearchTerm(tags_str, controlVariables);
@@ -32,6 +32,29 @@ function LandingPage(props) {
       props.history.replace(props.history.location.pathname, null);
     }
   }, []);
+
+  const getRecipesByRecommendation = (controlVariables) => {
+    Axios.get(`/recommend/${window.localStorage.userId}`).then((response) => {
+      var rids = response.data.rids;
+      if (rids.length === 0) {
+        getRecipesBySearchTerm(defaultSearchTerm, controlVariables)
+      } else {
+        var rids_str = rids.join(";");
+        Axios.get(`/recipes/${rids_str}`).then((response) => {
+          if (response.data.success) {
+            if (controlVariables.loadMore) {
+              updateRecipes([...Recipes, ...response.data.recipes]);
+            } else {
+              updateRecipes(response.data.recipes);
+            }
+            setPostSize(controlVariables.limit);
+          } else {
+            alert('Failed to fectch recipes data');
+          }
+        });
+      }
+    })
+  };
 
   const getRecipesBySearchTerm = (searchTerm, controlVariables) => {
     console.log(Recipes);
