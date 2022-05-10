@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Axios from 'axios'
 import { Popover, Button, Descriptions, Image, Layout, Divider, Row, Col, List, Typography  } from 'antd';
-import MailOutlined from '@ant-design/icons/MailOutlined';
-import HomeOutlined from '@ant-design/icons/HomeOutlined';
-import LaptopOutlined from '@ant-design/icons/LaptopOutlined';
 import { HeartTwoTone, getTwoToneColor, setTwoToneColor } from '@ant-design/icons';
 
 import { useSelector } from 'react-redux';
@@ -12,6 +9,7 @@ const BASE_IMAGE_URL = "https://recipepadblob.blob.core.windows.net/images/"
 
 
 function RecipeInfo(props) {
+  const [author, setAuthor] = useState()
   const user = useSelector((state) => state.user);
   const ingredients = [];
 
@@ -20,8 +18,15 @@ function RecipeInfo(props) {
   }
 
   useEffect(() => {
-    console.log(props.recipe)
-  }, []);
+    console.log(props.Recipe)
+    Axios.get(`/profile/${props.Recipe.uid}`).then(
+      (response) => {
+        // console.log(response.data)
+        setAuthor(response.data.nickname)
+      }
+    )
+    
+  }, [props.Recipe.uid]);
 
   const addToBookmarkhandler = () => {
     if (user.userData && !user.userData.isAuth) {
@@ -32,43 +37,21 @@ function RecipeInfo(props) {
     alert('Recipe Bookmarked');
   };
 
-  const rendercategory = (choice) => {
-    switch (choice) {
-      case 1:
-        return 'Appetizer';
-      case 2:
-        return 'Entrée';
-      case 3:
-        return 'Dessert';
-      case 4:
-        return 'Drink';
-      default:
-        return 'Gourmet';
-    }
-  };
+  const handleFollow = () => {
+    Axios.put(`/follow/${window.localStorage.userId}/${props.Recipe.uid}`).then(
+      _ => {
+        alert("Follow Success")
+      }
+    )
+  }
 
-  const content = (
-    <div>
-    <label>
-        <strong>Username:</strong>
-      </label>
-      <p>
-        <HomeOutlined /> {props.Recipe.username}
-      </p>
-      <label>
-        <strong>Email:</strong>
-      </label>
-      <p>
-        <MailOutlined /> {props.Recipe.useremail}
-      </p>
-      <label>
-        <strong>Nickname:</strong>
-      </label>
-      <p>
-        <LaptopOutlined /> {props.Recipe.usernickname}
-      </p>
-    </div>
-  );
+  const handleUnFollow = () => {
+    Axios.delete(`/follow/${window.localStorage.userId}/${props.Recipe.uid}`).then(
+      _ => {
+        alert("UnFollow Success")
+      }
+    )
+  }
 
   return (
   <div>
@@ -98,7 +81,19 @@ function RecipeInfo(props) {
       <h1> {props.Recipe.title}
       </h1>
     </Col>
-    <Col span={8}></Col>
+  </Row>
+  <Row>
+    <Col span={9}></Col>
+    <Col span={8}> 
+      <h3> Created By: &nbsp; {author} </h3>
+      <Button type="primary" ghost onClick={handleFollow}>
+        Follow
+      </Button>
+
+      <Button type="primary" danger ghost onClick={handleUnFollow}>
+        Unfollow
+      </Button>
+    </Col>
   </Row>
   <Row>
     <Col span={4}></Col>
