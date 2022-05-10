@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Axios from 'axios'
-import { Popover, Button, Descriptions, Image, Layout, Divider, Row, Col, List, Typography  } from 'antd';
-import { HeartTwoTone, getTwoToneColor, setTwoToneColor } from '@ant-design/icons';
-
+import { Button, Row, Col, List } from 'antd';
+import { HeartTwoTone } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
 
 const BASE_IMAGE_URL = "https://recipepadblob.blob.core.windows.net/images/"
@@ -10,9 +9,9 @@ const BASE_IMAGE_URL = "https://recipepadblob.blob.core.windows.net/images/"
 
 function RecipeInfo(props) {
   const [author, setAuthor] = useState()
+  const [followingsUids, setFollowingsUids] = useState([])
   const user = useSelector((state) => state.user);
   const ingredients = [];
-
   for (var i in props.Recipe.ingredients) {
     ingredients.push([i, props.Recipe.ingredients[i]]);
   }
@@ -25,7 +24,12 @@ function RecipeInfo(props) {
         setAuthor(response.data.nickname)
       }
     )
-    
+    Axios.get(`/following/${window.localStorage.userId}`).then(
+      (response) => {
+        console.log(response.data.following_uids)
+        setFollowingsUids(response.data.following_uids);
+      }
+    )
   }, [props.Recipe.uid]);
 
   const addToBookmarkhandler = () => {
@@ -40,7 +44,7 @@ function RecipeInfo(props) {
   const handleFollow = () => {
     Axios.put(`/follow/${window.localStorage.userId}/${props.Recipe.uid}`).then(
       _ => {
-        alert("Follow Success")
+        setFollowingsUids([...followingsUids , String(props.Recipe.uid)])
       }
     )
   }
@@ -48,7 +52,10 @@ function RecipeInfo(props) {
   const handleUnFollow = () => {
     Axios.delete(`/follow/${window.localStorage.userId}/${props.Recipe.uid}`).then(
       _ => {
-        alert("UnFollow Success")
+        const uids = followingsUids.filter(
+          (item) => item != String(props.Recipe.uid) 
+        );
+        setFollowingsUids(uids);
       }
     )
   }
@@ -83,18 +90,26 @@ function RecipeInfo(props) {
     </Col>
   </Row>
   <Row>
-    <Col span={9}></Col>
-    <Col span={8}> 
+    <Col span={10}></Col>
+    <Col span={4}> 
       <h3> Created By: &nbsp; {author} </h3>
-      <Button type="primary" ghost onClick={handleFollow}>
+    </Col>
+    <Col span={4}>
+      {
+      !followingsUids.includes(String(props.Recipe.uid)) &&
+        <Button type="primary" ghost onClick={handleFollow}>
         Follow
-      </Button>
-      &nbsp; &nbsp; &nbsp;
-      <Button type="danger" danger ghost onClick={handleUnFollow}>
-        Unfollow
-      </Button>
+        </Button>
+      }
+      {
+        followingsUids.includes(String(props.Recipe.uid)) &&
+        <Button type="danger" danger ghost onClick={handleUnFollow}>
+          Unfollow
+        </Button>
+      }  
     </Col>
   </Row>
+  <br/>
   <Row>
     <Col span={4}></Col>
     <Col span={16}>
