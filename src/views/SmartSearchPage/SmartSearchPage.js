@@ -15,11 +15,16 @@ function SmartSearchPage(props) {
     const [inputVisible, setInputVisible] = useState(false);
     const [inputValue, setInputValue] = useState();
     const PredictionApi = require("@azure/cognitiveservices-customvision-prediction");
+    const TrainingApi = require("@azure/cognitiveservices-customvision-training");
     const msRest = require("@azure/ms-rest-js");
 
+    const trainingKey = "358a625c3bd04ebf9bdb3e75403d00a2";
+    const trainingEndpoint = "https://eastus.api.cognitive.microsoft.com/";
     const predictionKey = "358a625c3bd04ebf9bdb3e75403d00a2";
     const predictionEndpoint = "https://eastus.api.cognitive.microsoft.com/";
 
+    const credentials = new msRest.ApiKeyCredentials({ inHeader: { "Training-key": trainingKey } });
+    const trainer = new TrainingApi.TrainingAPIClient(credentials, trainingEndpoint);
     const predictor_credentials = new msRest.ApiKeyCredentials({ inHeader: { "Prediction-key": predictionKey } });
     const predictor = new PredictionApi.PredictionAPIClient(predictor_credentials, predictionEndpoint);
 
@@ -36,6 +41,7 @@ function SmartSearchPage(props) {
         
         var file = new File([coverImageSelected], "test_imag.jpg");
 
+        // SampleProject.id
         predictor.classifyImage("75e311fd-f234-4c63-8351-51e96a561f27", "FreshProductv1", file).then(
             (results) => {
 
@@ -67,10 +73,52 @@ function SmartSearchPage(props) {
     );
 
     const onSubmit = (event) => {
+        
+
         if (predictedTags.length === 0) {
             alert("Waiting More Tags for Search")
         } else {
             console.log(predictedTags)
+            trainer.getTags("75e311fd-f234-4c63-8351-51e96a561f27").then(
+                (response) => {
+                    const tagNames = response.map(
+                        (item) => item.name
+                    );
+                    const existingTags = response.filter(
+                        (item) => predictedTags.includes(item.name)
+                    );
+                    const nonExistingTagNames = predictedTags.filter(
+                        (item) => !tagNames.includes(item)
+                    )
+    
+                    var file = new File([coverImageSelected], "test_imag.jpg");
+    
+                    if (nonExistingTagNames.length > 0) {
+                        trainer.createTag("75e311fd-f234-4c63-8351-51e96a561f27", nonExistingTagNames[0]).then(
+                            (response) => {
+                                existingTags.push(response)
+                                trainer.createImagesFromData(
+                                    "75e311fd-f234-4c63-8351-51e96a561f27",
+                                    file,
+                                    { tagIds: existingTags.map((item) => item.id) }
+                                ).then( (response) => {
+                                    console.log(response)
+                                    }  
+                                )
+                            }
+                        )
+                    } else {
+                        trainer.createImagesFromData(
+                            "75e311fd-f234-4c63-8351-51e96a561f27",
+                            file,
+                            { tagIds: existingTags.map((item) => item.id) }
+                        ).then( (response) => {
+                            console.log(response)
+                            }  
+                        )
+                    }
+                }
+            )
             props.history.push('/recipe', {tags: predictedTags});
         }
     }
