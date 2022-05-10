@@ -42,7 +42,7 @@ function SmartSearchPage(props) {
         var file = new File([coverImageSelected], "test_imag.jpg");
 
         // SampleProject.id
-        predictor.classifyImage("75e311fd-f234-4c63-8351-51e96a561f27", "FreshProductv1", file).then(
+        predictor.classifyImage("75e311fd-f234-4c63-8351-51e96a561f27", "Freshfoodv3", file).then(
             (results) => {
 
                 const possibleTags = results.predictions.filter(
