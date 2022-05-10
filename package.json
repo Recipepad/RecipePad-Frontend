@@ -5,6 +5,7 @@
   "dependencies": {
     "@ant-design/icons": "^4.0.6",
     "@azure/cognitiveservices-customvision-prediction": "^5.1.2",
+    "@azure/cognitiveservices-customvision-training": "^5.2.0",
     "@azure/ms-rest-js": "^2.6.1",
     "@azure/storage-blob": "^12.9.0",
     "antd": "^3.24.1",
