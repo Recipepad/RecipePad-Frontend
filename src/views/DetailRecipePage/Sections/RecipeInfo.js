@@ -89,8 +89,8 @@ function RecipeInfo(props) {
       <Button type="primary" ghost onClick={handleFollow}>
         Follow
       </Button>
-
-      <Button type="primary" danger ghost onClick={handleUnFollow}>
+      &nbsp; &nbsp; &nbsp;
+      <Button type="danger" danger ghost onClick={handleUnFollow}>
         Unfollow
       </Button>
     </Col>
