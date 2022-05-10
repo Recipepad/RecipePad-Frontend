@@ -7,6 +7,7 @@ import ScheduleOutlined from '@ant-design/icons/ScheduleOutlined';
 import EditOutlined from '@ant-design/icons/EditOutlined';
 import DeleteOutlined from '@ant-design/icons/DeleteOutlined';
 import { UserOutlined } from '@ant-design/icons';
+import { Menu, Icon, Badge, Tooltip } from 'antd';
 
 import { useDispatch } from 'react-redux';
 import { fetchProfile, updateProfile } from '../../actions/user_actions';
@@ -19,6 +20,7 @@ function ProfilePage() {
   const [userId, setuserId] = useState('');
   const [nicknameValue, setnicknameValue] = useState('');
   const [Posts, setPosts] = useState([]);
+  const [Follows, setFollows] = useState([]);
   const [image, setimageValue] = useState('');
 
   useEffect(() => {
@@ -32,6 +34,14 @@ function ProfilePage() {
         alert('Failed to get post history');
       }
     });
+    Axios.get(`/following/${window.localStorage.userId}`).then((response) => {
+      const following_uids = response.data.following_uids
+      var uids_str = following_uids.join(";");
+      Axios.get(`/profiles/${uids_str}`).then((response) => {
+        console.log(response.data.profiles)
+        setFollows(response.data.profiles)
+      })
+    })
   }, []);
 
   useEffect(() => {
@@ -84,6 +94,16 @@ function ProfilePage() {
     );
   };
 
+  const handleUnFollow = (followUid) => {
+    console.log(followUid)
+    Axios.delete(`/follow/${window.localStorage.userId}/${followUid}`).then(
+      (response) => {
+        console.log(response)
+        alert("UnFollow Success")
+      }
+    )
+  }
+
   return (
     <div style={{ width: '80%', margin: '3rem auto ' }}>
       <div style={{ textAlign: 'left' }}>
@@ -95,10 +115,10 @@ function ProfilePage() {
           </Link>
         </h1>
       </div>
-      <br />
+      <br/>
       <Form onSubmit={onSubmit}>
-        <label>User Id</label>
-        <Input  value={userId} disabled/>
+        <label> User Id</label>
+        <Input value={userId} disabled/>
         <br />
         <br />
         <label>Email</label>
@@ -168,6 +188,49 @@ function ProfilePage() {
           ))}
         </tbody>
       </table>
+      <br />
+      <br />
+
+      <div style={{ textAlign: 'left' }}>
+        <h1>
+          My Following List <ScheduleOutlined type='schedule' />
+        </h1>
+      </div>
+        <table>
+          <thead>
+            <tr>
+              <th>User Id</th>
+              <th>Nick Name</th>
+              <th>Check Posts</th>
+              <th>Unfollow</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Follows.map((f) => (
+              <tr key={f.uid}>
+                <td>
+                  {f.uid}
+                </td>
+                <td>
+                  {f.nickname}
+                </td>
+                <td>
+                  <a href={`/profile/${f.uid}`}><Icon type="user" style={{ fontSize: 25}} /></a>
+                </td>
+                <td>
+                  <Button type='danger' onClick={
+                    () => {
+                      handleUnFollow(f.uid)
+                    }}>
+                    Unfollow
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      <br />
+
     </div>
   );
 }
