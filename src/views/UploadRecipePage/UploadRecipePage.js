@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Typography, Button, Form, Input, Divider, Row, Col } from 'antd';
+import { Upload, Typography, Button, Form, Input, Divider, Row, Col } from 'antd';
 import UploadOutlined from '@ant-design/icons/UploadOutlined';
 import uploadFileToBlob, { isStorageConfigured } from '../../azureBlob';
 import Axios from 'axios';
+import { PlusOutlined } from '@ant-design/icons';
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -46,19 +47,19 @@ function UploadRecipePage(props) {
 
   const onCoverImageChange = (event) => {
     // capture file into state
-    setCoverImageSelected(event.target.files[0]);
-    console.log("onCoverImageChange")
-    console.log(event.target.files[0])
+    setCoverImageSelected(event.file.originFileObj);
   };
 
   const onStepImageChange = (event) => {
     // capture file into state
     console.log("onStepImageChange")
-    setStepImages([...StepImages, event.target.files[0]]);
-    const stepIndex = event.target.getAttribute('countStep') - 1
+    const stepIndex = StepsValue.length - 1; // Always fill the last step
+    setStepImages([...StepImages, event.file.originFileObj]);
+    
+    // event.target.getAttribute('countStep') - 1
     console.log(stepIndex)
-    StepsValue[stepIndex]['file'] = event.target.files[0]
-    console.log(event.target.files[0])
+    StepsValue[stepIndex]['file'] = event.file.originFileObj
+    console.log(event.file.originFileObj)
   };
 
   const getFileUrl = (file) => {
@@ -69,20 +70,41 @@ function UploadRecipePage(props) {
     }
   }
 
+  const uploadButton = (
+    <div>
+        { <PlusOutlined />}
+        <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+    );
+
   // display form for cover image
   const DisplayForm = () => (
     <div>
-      <input type="file" style={{ width: '200px' }} onChange={onCoverImageChange} />
-      {coverImageSelected &&  <img style={{ width: '200px' }} src={preview} /> }
-    </div>
+        <Upload
+            name="avatar"
+            listType="picture-card"
+            showUploadList={false}
+            onChange={onCoverImageChange}>
+        {coverImageSelected ?  <img style={{ width: '200px' }} src={preview} /> : uploadButton }
+        </Upload>
+        </div>
   );
 
   // display form for step images
   const DisplayStepForm = ({y}) => (
     <div>
-      <input key={y} countStep={y.countStep} type="file" style={{ width: '200px' }} onChange={onStepImageChange} />
-      <img style={{ width: '200px' }} src={getFileUrl(y.file)} />
-    </div>
+        <Upload
+            name="avatar"
+            listType="picture-card"
+            showUploadList={false}
+            onChange={onStepImageChange}>
+        {getFileUrl(y.file) != "" ?  <img style={{ width: '200px' }} src={getFileUrl(y.file)} /> : uploadButton }
+        </Upload>
+        </div>
+    // <div>
+    //   <input key={y} countStep={y.countStep} type="file" style={{ width: '200px' }} onChange={onStepImageChange} />
+    //   <img style={{ width: '200px' }} src={getFileUrl(y.file)} />
+    // </div>
   );
 
   const onTitleChange = (event) => {
@@ -228,11 +250,7 @@ function UploadRecipePage(props) {
         <div>
           <label>Upload cover image</label>
           {storageConfigured && DisplayForm()}
-          <p style={{ color: 'red' }}>
-          *drop or choose from files, choose from file again but cancel can delete the image
-          </p>
         </div>
-        <br />
         <br />
         <Divider>Title</Divider>
         <label>Title</label>
@@ -248,7 +266,7 @@ function UploadRecipePage(props) {
         <div>
           {IngredientsValue.map((x, i) => {
             return (
-              <div key={x}>
+              <div key={i}>
                 <Input.Group>
                   <Row gutter={8}>
                     <Col span={8}>
@@ -290,11 +308,7 @@ function UploadRecipePage(props) {
                 <div>
                   <label>Upload image for the current step</label>
                   {storageConfigured && DisplayStepForm({y})}
-                  <p style={{ color: 'red' }}>
-                  *drop or choose from files, choose from file again but cancel can delete the image
-                  </p>
                 </div>
-                <br />
                 <br />
                 <label>Step Sub-title</label>
                 <Input name="title" value={y.topost.title} onChange={e => handleInputStepChange(e, j)}/>
