@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import CameraOutlined from '@ant-design/icons/CameraOutlined';
-import { Typography, Button, Form, Input, Divider, Row, Col, Tag, Tooltip } from 'antd';
+import { Upload, Button, Form, Input, Divider, Row, Col, Tag, Tooltip } from 'antd';
 import uploadFileToBlob, { isStorageConfigured } from '../../azureBlob';
 import { PlusOutlined } from '@ant-design/icons';
 import Axios from 'axios';
@@ -59,16 +59,30 @@ function SmartSearchPage(props) {
         return () => URL.revokeObjectURL(objectUrl)
     }, [coverImageSelected])
 
-    const onCoverImageChange = (event) => {
+    const onCoverImageChange = (info) => {
         // capture file into state
-        setCoverImageSelected(event.target.files[0]);
+        console.log(info.file);
+        setCoverImageSelected(info.file.originFileObj);
       };
+
+    const uploadButton = (
+    <div>
+        { <PlusOutlined />}
+        <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+    );
 
     // display form for cover image
     const DisplayForm = () => (
         <div>
-        <input type="file" style={{ width: '200px' }} onChange={onCoverImageChange} />
-        {coverImageSelected &&  <img style={{ width: '200px' }} src={preview} /> }
+        <Upload
+            name="avatar"
+            listType="picture-card"
+            className="avatar-uploader"
+            showUploadList={false}
+            onChange={onCoverImageChange}>
+        {coverImageSelected ?  <img style={{ width: '200px' }} src={preview} /> : uploadButton }
+        </Upload>
         </div>
     );
 
@@ -166,9 +180,6 @@ function SmartSearchPage(props) {
           <div>
             <label>Upload Food Material Image</label>
             {storageConfigured && DisplayForm()}
-            <p style={{ color: 'red' }}>
-                *drop or choose from files, choose from file again but cancel can delete the image
-            </p>
           </div>
         <div>
             {renderTags}

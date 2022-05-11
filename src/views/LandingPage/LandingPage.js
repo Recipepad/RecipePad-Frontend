@@ -2,9 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Axios from 'axios';
 import { Col, Card, Row, Button } from 'antd';
 import RocketOutlined from '@ant-design/icons/RocketOutlined';
-import ImageSlider from '../../components/ImageSlider';
 import SearchFeature from './Sections/SearchFeature';
-import { render } from 'react-dom';
 
 const { Meta } = Card;
 const BASE_IMAGE_URL = "https://recipepadblob.blob.core.windows.net/images/"
@@ -54,7 +52,7 @@ function LandingPage(props) {
 
   const getRecipesBySearchTerm = (searchTerm, controlVariables) => {
     console.log(Recipes);
-    Axios.get(`/search/${window.localStorage.userId}/${searchTerm}/16`).then((response) => {
+    Axios.get(`/search/${searchTerm}`).then((response) => {
       console.log(response.data)
       var rids_str = response.data.rids.join(";");
       if (rids_str === "") {
