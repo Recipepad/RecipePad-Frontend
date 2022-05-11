@@ -34,7 +34,7 @@ function LandingPage(props) {
   }, []);
 
   const getRecipesByRecommendation = (controlVariables) => {
-    Axios.get(`/recommend/${window.localStorage.userId}`).then((response) => {
+    Axios.get(`/recommend/${window.localStorage.userId}/5`).then((response) => {
       var rids = response.data.rids;
       if (rids.length === 0) {
         getRecipesBySearchTerm(defaultSearchTerm, controlVariables)
@@ -58,7 +58,7 @@ function LandingPage(props) {
 
   const getRecipesBySearchTerm = (searchTerm, controlVariables) => {
     console.log(Recipes);
-    Axios.get(`/search/${searchTerm}`).then((response) => {
+    Axios.get(`/search/${window.localStorage.userId}/${searchTerm}/16`).then((response) => {
       console.log(response.data)
       var rids_str = response.data.rids.join(";");
       if (rids_str === "") {
