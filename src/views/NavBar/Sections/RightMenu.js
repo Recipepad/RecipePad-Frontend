@@ -55,6 +55,12 @@ function RightMenu(props) {
           </Badge>
         </Menu.Item>
 
+        <Menu.Item key="recipeflow" style={{ paddingBottom: 8 }}>
+          <Badge>
+            <Tooltip placement="bottom" title="recipeflow"><a href="/recipeflow"><Icon type="team" style={{ fontSize: 25}} /></a></Tooltip>
+          </Badge>
+        </Menu.Item>
+
         <Menu.Item key="logout">
           <Tooltip placement="bottom" title="sign out"><a onClick={logoutHandler}><Icon type="logout" style={{ fontSize: 25}} /></a></Tooltip>
         </Menu.Item>

@@ -12,6 +12,7 @@ import FavoritePage from "./views/FavoritePage/FavoritePage"
 import Auth from "./auth"
 import LandingPage from "./views/LandingPage/LandingPage"
 import SmartSearchPage from "./views/SmartSearchPage/SmartSearchPage"
+import RecipeFlowPage from "./views/RecipeFlowPage/RecipeFlowPage"
 import UploadRecipePage from './views/UploadRecipePage/UploadRecipePage'
 import DetailRecipePage from './views/DetailRecipePage/DetailRecipePage'
 import EditRecipePage from './views/EditRecipePage/EditRecipePage'
@@ -37,6 +38,7 @@ const App = () => {
               <Route exact path="/register" component={Auth(RegisterPage, true)} />
               <Route exact path="/recipe" component={Auth(LandingPage, true)} />
               <Route exact path="/smartsearch" component={Auth(SmartSearchPage, true)} />
+              <Route exact path="/recipeflow" component={Auth(RecipeFlowPage, true)} />
               <Route exact path="/profile" component={Auth(Profile, true)} />
               <Route exact path="/settings" component={Auth(Setting, true)} />
               <Route exact path="/bookmark" component={Auth(FavoritePage, true)} />

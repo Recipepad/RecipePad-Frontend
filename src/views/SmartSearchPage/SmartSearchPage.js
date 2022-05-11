@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import RocketOutlined from '@ant-design/icons/RocketOutlined';
+import CameraOutlined from '@ant-design/icons/CameraOutlined';
 import { Typography, Button, Form, Input, Divider, Row, Col, Tag, Tooltip } from 'antd';
 import uploadFileToBlob, { isStorageConfigured } from '../../azureBlob';
 import { PlusOutlined } from '@ant-design/icons';
@@ -160,7 +160,7 @@ function SmartSearchPage(props) {
           <div style={{ textAlign: 'center' }}>
             <h2>
               {' '}
-              What Food Material Do We Have <RocketOutlined type='rocket' />{' '}
+              What Food Material Do We Have <CameraOutlined type='camera' />{' '}
             </h2>
           </div>
           <div>
