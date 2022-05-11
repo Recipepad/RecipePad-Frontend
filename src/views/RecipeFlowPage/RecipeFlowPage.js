@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Col, Card, Row, Button, Avatar } from 'antd';
 import TeamOutlined from '@ant-design/icons/TeamOutlined';
+import CloseOutlined from '@ant-design/icons/CloseOutlined';
+import HeartOutlined from '@ant-design/icons/HeartOutlined';
 import Axios from 'axios';
 import { UserOutlined } from '@ant-design/icons';
 import './RecipeFlowPage.css';
@@ -40,9 +42,45 @@ function RecipeFlowPage(props) {
         }
     }
 
-    const handleConsume = () => {
-        alert("Click")
-    };
+    const consumeRecipe = (rid) => {
+        Axios.delete(`/feed/${window.localStorage.userId}/${rid}`).then(
+            response => {
+                console.log(response);
+            }
+        )
+    }
+
+    const handleHeart = (rid) => {
+        const dataToSubmit = {
+            rid: rid,
+            uid: `${window.localStorage.userId}`
+        }
+        Axios.post(`/bookmark`, dataToSubmit).then(
+        _ => {
+            Axios.delete(`/feed/${window.localStorage.userId}/${rid}`).then(
+                response => {
+                    const updatedRecipes = Recipes.filter(
+                        (item) => item.rid != rid
+                    )
+                    updateRecipes(updatedRecipes);
+                    console.log(response);
+                }
+            );}
+        );
+    }
+
+    const handleClose = (rid) => {
+        Axios.delete(`/feed/${window.localStorage.userId}/${rid}`).then(
+            response => {
+                const updatedRecipes = Recipes.filter(
+                    (item) => item.rid != rid
+                )
+                updateRecipes(updatedRecipes);
+                console.log(response);
+            }
+        );
+        
+    }
 
     const renderCards = Recipes.map((recipe, index) => {
         return (
@@ -50,7 +88,7 @@ function RecipeFlowPage(props) {
             <Card
               hoverable={true}
               cover={
-                <a href={`/recipe/${recipe.rid}`} onClick={handleConsume}>
+                <a href={`/recipe/${recipe.rid}`}>
                 <br/>
                 <div className="bar">
                     <Avatar icon={<UserOutlined />} /> &nbsp; &nbsp;
@@ -63,6 +101,12 @@ function RecipeFlowPage(props) {
                     src={BASE_IMAGE_URL + recipe.cover_imgid}
                   />
                 </a>
+              }
+              actions={
+                [
+                    <HeartOutlined onClick={() => handleHeart(recipe.rid)}/>,
+                    <CloseOutlined onClick={() => handleClose(recipe.rid)}/>
+                ]
               }
             >
             <Meta title={recipe.title} description={`$${recipe.description.substring(0, 25)}`} />
