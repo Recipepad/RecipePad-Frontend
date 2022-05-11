@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Input, Avatar } from 'antd';
-import { HeartTwoTone, getTwoToneColor, setTwoToneColor } from '@ant-design/icons';
+import DeleteOutlined from '@ant-design/icons/DeleteOutlined';
 import Axios from 'axios';
 
 const BASE_IMAGE_URL = "https://recipepadblob.blob.core.windows.net/images/"
@@ -66,7 +66,7 @@ function FavoritePage() {
                       removeItem(p.rid);
                     }}
                   >
-                  <HeartTwoTone twoToneColor="#eb2f96" />
+                  <DeleteOutlined type='delete' />
                 </Button>
               </td>
               </tr>

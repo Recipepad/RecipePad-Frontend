@@ -36,9 +36,6 @@ function LandingPage(props) {
   const getRecipesByRecommendation = (controlVariables) => {
     Axios.get(`/recommend/${window.localStorage.userId}/5`).then((response) => {
       var rids = response.data.rids;
-      if (rids.length === 0) {
-        getRecipesBySearchTerm(defaultSearchTerm, controlVariables)
-      } else {
         var rids_str = rids.join(";");
         Axios.get(`/recipes/${rids_str}`).then((response) => {
           if (response.data.success) {
@@ -52,7 +49,6 @@ function LandingPage(props) {
             alert('Failed to fectch recipes data');
           }
         });
-      }
     })
   };
 
