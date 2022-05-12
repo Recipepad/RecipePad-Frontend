@@ -170,6 +170,7 @@ function UploadRecipePage(props) {
       uploadFileToBlob(coverImage).then(
         _ => {
           props.history.push('/recipe');
+          alert('Image upload succeed');
         }
       );
 

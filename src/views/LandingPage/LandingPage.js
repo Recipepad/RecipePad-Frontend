@@ -32,7 +32,7 @@ function LandingPage(props) {
   }, []);
 
   const getRecipesByRecommendation = (controlVariables) => {
-    Axios.get(`/recommend/${window.localStorage.userId}/5`).then((response) => {
+    Axios.get(`/recommend/${window.localStorage.userId}/12`).then((response) => {
       var rids = response.data.rids;
         var rids_str = rids.join(";");
         Axios.get(`/recipes/${rids_str}`).then((response) => {
