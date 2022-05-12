@@ -4,6 +4,8 @@ import UploadOutlined from '@ant-design/icons/UploadOutlined';
 import uploadFileToBlob, { isStorageConfigured } from '../../azureBlob';
 import Axios from 'axios';
 import { PlusOutlined } from '@ant-design/icons';
+import { Alert } from 'antd';
+
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -40,7 +42,6 @@ function UploadRecipePage(props) {
 
     const objectUrl = URL.createObjectURL(coverImageSelected)
     setPreview(objectUrl)
-
     // free memory when ever this component is unmounted
     return () => URL.revokeObjectURL(objectUrl)
   }, [coverImageSelected])
@@ -166,15 +167,18 @@ function UploadRecipePage(props) {
         uploadFileToBlob(stepImage);
       });
 
-      uploadFileToBlob(coverImage);
+      uploadFileToBlob(coverImage).then(
+        _ => {
+          props.history.push('/recipe');
+        }
+      );
 
       // reset state/form
       setCoverImageSelected(null);
       setStepImages([]);
 
       if (response.data.success) {
-        alert('Recipe Successfully Uploaded');
-        // props.history.push('/recipe');
+        console.log("Success")
       } else {
         alert('Failed to upload recipe');
       }
