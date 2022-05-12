@@ -54,7 +54,7 @@ const uploadFileToBlob = async (file) => {
   // upload file
   await createBlobInContainer(containerClient, file);
 
-  alert('Image upload succeed');
+  // alert('Image upload succeed');
 
   // get list of blobs in container
   return getBlobsInContainer(containerClient);
